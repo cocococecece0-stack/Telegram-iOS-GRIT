@@ -31,6 +31,10 @@ Workflow `.github/workflows/grit-build.yml`:
 CI использует `build-system/grit-configuration.json` и встроенные в репозиторий
 fake-codesigning сертификаты — реальный Apple-аккаунт для сборки симулятора не нужен.
 
+Также в `.gitmodules` URL сабмодуля `tgcalls` заменён с относительного `../tgcalls.git`
+на абсолютный `https://github.com/TelegramMessenger/tgcalls.git`: иначе в форке git
+пытается клонировать `cocococecece0-stack/tgcalls`, которого не существует.
+
 Локально (нужны macOS + Xcode из `versions.json`):
 
 ```bash
