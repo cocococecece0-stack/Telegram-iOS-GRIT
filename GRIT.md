@@ -8,7 +8,7 @@
 | Что | Было | Стало |
 |---|---|---|
 | Имя приложения | Telegram | **GRIT TG** |
-| Bundle ID | `ph.telegra.Telegraph` | `org.grit.telegram` |
+| Bundle ID | `ph.telegra.Telegraph` | оставлен апстримовым в сборке* |
 | URL-схема | `tg` | `grit` |
 | Акцент в тёмной теме | `#3E88F7` | `#9EFF00` (кислотный лайм) |
 | Градиент исходящих пузырей | синий/фиолетовый | `#00E676 → #9EFF00 → #1B5E20` |
@@ -18,6 +18,11 @@
 | Кнопка на экране входа | `Start Messaging` | `ENTER THE GRIT` |
 
 Всё остальное — оригинальный код Telegram iOS с его архитектурой, MTProto и UI.
+
+\* bundle id в `grit-configuration.json` оставлен `ph.telegra.Telegraph`: встроенные
+fake provisioning-профили завязаны именно на него, и без своих сертификатов сборка
+падает на `aps-environment`. Если нужен свой bundle id — замените профили в
+`build-system/fake-codesigning` на свои, а затем поменяйте `bundle_id` в конфиге.
 
 ## Сборка на GitHub
 

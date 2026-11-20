@@ -20,7 +20,7 @@ check submodules/TelegramPresentationData/Sources/DefaultDarkPresentationTheme.s
 check submodules/TelegramPresentationData/Sources/MakePresentationTheme.swift 'neutralNightAccentColor = UIColor(rgb: 0x9eff00)'
 check submodules/TelegramPresentationData/Sources/DefaultDayPresentationTheme.swift 'defaultDayAccentColor = UIColor(rgb: 0x14a33c)'
 check submodules/AuthorizationUI/Sources/AuthorizationSequenceSplashController.swift '"ENTER THE GRIT"'
-check build-system/grit-configuration.json '"bundle_id": "org.grit.telegram"'
+check build-system/grit-configuration.json '"app_specific_url_scheme": "grit"'
 
 python3 -c 'import json; json.load(open("Telegram/Telegram-iOS/Telegram.icon/icon.json")); json.load(open("build-system/grit-configuration.json"))' \
     || fail 'invalid JSON in mod assets'
