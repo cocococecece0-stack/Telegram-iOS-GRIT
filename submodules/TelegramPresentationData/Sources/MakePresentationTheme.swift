@@ -10,7 +10,7 @@ public func neutralOutgoingBubbleColor(dark: Bool) -> UInt32 {
 }
 
 /// Only the bubbles are gray: the night half keeps Telegram's blue accent instead of Night's white.
-private let neutralNightAccentColor = UIColor(rgb: 0x3e88f7)
+private let neutralNightAccentColor = UIColor(rgb: 0x9eff00)
 
 private func makeDefaultNeutralPresentationTheme(dark: Bool, extendingThemeReference: PresentationThemeReference?, serviceBackgroundColor: UIColor?, preview: Bool) -> PresentationTheme {
     let reference = extendingThemeReference ?? .builtin(dark ? .neutralNight : .neutral)

@@ -4,7 +4,7 @@ import TelegramCore
 import TelegramUIPreferences
 
 public let defaultDarkPresentationTheme = makeDefaultDarkPresentationTheme(preview: false)
-public let defaultDarkColorPresentationTheme = customizeDefaultDarkPresentationTheme(theme: defaultDarkPresentationTheme, editing: false, title: nil, accentColor: UIColor(rgb: 0x3e88f7), backgroundColors: [], bubbleColors: [], animateBubbleColors: false, wallpaper: nil, baseColor: nil)
+public let defaultDarkColorPresentationTheme = customizeDefaultDarkPresentationTheme(theme: defaultDarkPresentationTheme, editing: false, title: nil, accentColor: UIColor(rgb: 0x9eff00), backgroundColors: [], bubbleColors: [], animateBubbleColors: false, wallpaper: nil, baseColor: nil)
 
 private extension PresentationThemeBaseColor {
     var colorWallpaper: (BuiltinWallpaperData, Int32, [UInt32])? {
@@ -56,11 +56,11 @@ public func customizeDefaultDarkPresentationTheme(theme: PresentationTheme, edit
         if accentColor.rgb == 0xffffff {
             monochrome = true
             bubbleColors = [UIColor(rgb: 0x313131).rgb, UIColor(rgb: 0x313131).rgb]
-        } else if accentColor.rgb == 0x3e88f7 {
+        } else if accentColor.rgb == 0x9eff00 {
             bubbleColors = [
-                0x0771ff,
-                0x9047ff,
-                0xa256bf,
+                0x00e676,
+                0x9eff00,
+                0x1b5e20,
             ].reversed()
         } else {
             bubbleColors = [accentColor.withMultiplied(hue: 0.966, saturation: 0.61, brightness: 0.98).rgb, accentColor.rgb]

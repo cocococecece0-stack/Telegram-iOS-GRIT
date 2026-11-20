@@ -79,7 +79,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
             return defaultPresentationStrings.Items_NOfM("\(page)", "\(count)").string
         }
 
-        self.startButton = SolidRoundedButtonNode(title: "Start Messaging", theme: SolidRoundedButtonTheme(theme: theme), glass: false, height: 50.0, cornerRadius: 50.0 * 0.5, isShimmering: true)
+        self.startButton = SolidRoundedButtonNode(title: "ENTER THE GRIT", theme: SolidRoundedButtonTheme(theme: theme), glass: false, height: 50.0, cornerRadius: 50.0 * 0.5, isShimmering: true)
         self.startButton.accessibilityIdentifier = "Auth.Welcome.StartButton"
 
         super.init(navigationBarPresentationData: nil)

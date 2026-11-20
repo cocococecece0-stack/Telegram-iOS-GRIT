@@ -1,3 +1,5 @@
+> **GRIT MOD:** это форк [`cocococecece0-stack/Telegram-iOS-GRIT`](GRIT.md) — неофициальный клиент с токсичным неоновым акцентом и сборкой в GitHub Actions (`xcode-27`). Ниже — оригинальная инструкция апстрима.
+
 # Telegram iOS Source Code Compilation Guide
 
 We welcome all developers to use our API and source code to create applications on our platform.
