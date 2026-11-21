@@ -343,11 +343,11 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
         secondaryTextColor: UIColor(rgb: 0xffffff, alpha: 0.5),
         controlColor: UIColor(rgb: 0x767676),
         accentTextColor: UIColor(rgb: 0xffffff),
-        blurredBackgroundColor: UIColor(rgb: 0x1d1d1d, alpha: 0.9),
-        opaqueBackgroundColor: UIColor(rgb: 0x1d1d1d).mixedWith(UIColor(rgb: 0x000000), alpha: 0.1),
-        separatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
+        blurredBackgroundColor: UIColor(rgb: 0x0b120b, alpha: 0.94),
+        opaqueBackgroundColor: UIColor(rgb: 0x0b120b),
+        separatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
         badgeBackgroundColor:  UIColor(rgb: 0xffffff),
-        badgeStrokeColor: UIColor(rgb: 0x1c1c1d),
+        badgeStrokeColor: UIColor(rgb: 0x0b120b),
         badgeTextColor:  UIColor(rgb: 0x000000),
         segmentedBackgroundColor: UIColor(rgb: 0xffffff, alpha: 0.11),
         segmentedForegroundColor: UIColor(rgb: 0xffffff, alpha: 0.36),
@@ -359,25 +359,25 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
 
     let rootTabBar = PresentationThemeRootTabBar(
         backgroundColor: rootNavigationBar.blurredBackgroundColor,
-        separatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
+        separatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
         iconColor: UIColor(rgb: 0xffffff),
         selectedIconColor: UIColor(rgb: 0xffffff),
         textColor: UIColor(rgb: 0xffffff),
         selectedTextColor: UIColor(rgb: 0xffffff),
         badgeBackgroundColor:  UIColor(rgb: 0xffffff),
-        badgeStrokeColor: UIColor(rgb: 0x1c1c1d),
+        badgeStrokeColor: UIColor(rgb: 0x0b120b),
         badgeTextColor:  UIColor(rgb: 0x000000)
     )
 
     let navigationSearchBar = PresentationThemeNavigationSearchBar(
-        backgroundColor: UIColor(rgb: 0x1c1c1d),
+        backgroundColor: UIColor(rgb: 0x0b120b),
         accentColor: UIColor(rgb: 0xffffff),
         inputFillColor: UIColor(white: 1.0, alpha: 0.1),
         inputTextColor: UIColor(rgb: 0xffffff),
         inputPlaceholderTextColor: UIColor(rgb: 0x8f8f8f),
         inputIconColor: UIColor(rgb: 0x8f8f8f),
         inputClearButtonColor: UIColor(rgb: 0x8f8f8f),
-        separatorColor: UIColor(rgb: 0x545458, alpha: 0.55)
+        separatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9)
     )
 
     let intro = PresentationThemeIntro(
@@ -386,12 +386,12 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
         accentTextColor: UIColor(rgb: 0xffffff),
         disabledTextColor: UIColor(rgb: 0x525252),
         startButtonColor: UIColor(rgb: 0xffffff),
-        dotColor: UIColor(rgb: 0x5e5e5e)
+        dotColor: UIColor(rgb: 0x2f4a24)
     )
 
     let passcode = PresentationThemePasscode(
         backgroundColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0x000000), bottomColor: UIColor(rgb: 0x000000)),
-        buttonColor: UIColor(rgb: 0x1c1c1d)
+        buttonColor: UIColor(rgb: 0x0b120b)
     )
 
     let rootController = PresentationThemeRootController(
@@ -405,30 +405,30 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
     let switchColors = PresentationThemeSwitch(
         frameColor: UIColor(rgb: 0x39393d),
         handleColor: UIColor(rgb: 0x121212),
-        contentColor: UIColor(rgb: 0x67ce67),
+        contentColor: UIColor(rgb: 0x9eff00),
         positiveColor: UIColor(rgb: 0x08a723),
         negativeColor: UIColor(rgb: 0xeb5545)
     )
 
     let list = PresentationThemeList(
-        blocksBackgroundColor: UIColor(rgb: 0x000000),
-        modalBlocksBackgroundColor: UIColor(rgb: 0x1c1c1d),
-        plainBackgroundColor: UIColor(rgb: 0x000000),
-        modalPlainBackgroundColor: UIColor(rgb: 0x1c1c1d),
-        itemPrimaryTextColor: UIColor(rgb: 0xffffff),
-        itemSecondaryTextColor: UIColor(rgb: 0x98989e),
+        blocksBackgroundColor: UIColor(rgb: 0x050805),
+        modalBlocksBackgroundColor: UIColor(rgb: 0x0b120b),
+        plainBackgroundColor: UIColor(rgb: 0x050805),
+        modalPlainBackgroundColor: UIColor(rgb: 0x0b120b),
+        itemPrimaryTextColor: UIColor(rgb: 0xe6ffd6),
+        itemSecondaryTextColor: UIColor(rgb: 0x7c9a70),
         itemDisabledTextColor: UIColor(rgb: 0x8f8f8f),
         itemAccentColor: UIColor(rgb: 0xffffff),
         itemHighlightedColor: UIColor(rgb: 0x28b772),
         itemDestructiveColor: UIColor(rgb: 0xeb5545),
-        itemPlaceholderTextColor: UIColor(rgb: 0x4d4d4d),
-        itemBlocksBackgroundColor: UIColor(rgb: 0x1c1c1d),
+        itemPlaceholderTextColor: UIColor(rgb: 0x2f4a24),
+        itemBlocksBackgroundColor: UIColor(rgb: 0x0b120b),
         itemModalBlocksBackgroundColor: UIColor(rgb: 0x2c2c2e),
         itemHighlightedBackgroundColor: UIColor(rgb: 0x313135),
-        itemBlocksSeparatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
-        itemPlainSeparatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
+        itemBlocksSeparatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
+        itemPlainSeparatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
         disclosureArrowColor: UIColor(rgb: 0xffffff, alpha: 0.28),
-        sectionHeaderTextColor: UIColor(rgb: 0x8d8e93),
+        sectionHeaderTextColor: UIColor(rgb: 0x9eff00, alpha: 0.75),
         freeTextColor: UIColor(rgb: 0x8d8e93),
         freeTextErrorColor: UIColor(rgb: 0xcf3030),
         freeTextSuccessColor: UIColor(rgb: 0x30cf30),
@@ -450,25 +450,25 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
         ),
         controlSecondaryColor: UIColor(rgb: 0xffffff, alpha: 0.5),
         freeInputField: PresentationInputFieldTheme(
-            backgroundColor: UIColor(rgb: 0x272728),
+            backgroundColor: UIColor(rgb: 0x101810),
             strokeColor: UIColor(rgb: 0x272728),
             placeholderColor: UIColor(rgb: 0x98989e),
             primaryColor: UIColor(rgb: 0xffffff),
             controlColor: UIColor(rgb: 0x98989e)
         ),
         freePlainInputField: PresentationInputFieldTheme(
-            backgroundColor: UIColor(rgb: 0x272728),
+            backgroundColor: UIColor(rgb: 0x101810),
             strokeColor: UIColor(rgb: 0x272728),
             placeholderColor: UIColor(rgb: 0x98989e),
             primaryColor: UIColor(rgb: 0xffffff),
             controlColor: UIColor(rgb: 0x98989e)
         ),
-        mediaPlaceholderColor: UIColor(rgb: 0xffffff).mixedWith(UIColor(rgb: 0x1c1c1d), alpha: 0.9),
+        mediaPlaceholderColor: UIColor(rgb: 0xffffff).mixedWith(UIColor(rgb: 0x0b120b), alpha: 0.9),
         scrollIndicatorColor: UIColor(rgb: 0xffffff, alpha: 0.5),
         pageIndicatorInactiveColor: UIColor(white: 1.0, alpha: 0.3),
         inputClearButtonColor: UIColor(rgb: 0x8b9197),
         itemBarChart: PresentationThemeItemBarChart(color1: UIColor(rgb: 0xffffff), color2: UIColor(rgb: 0x929196), color3: UIColor(rgb: 0x333333)),
-        itemInputField: PresentationInputFieldTheme(backgroundColor: UIColor(rgb: 0x0f0f0f), strokeColor: UIColor(rgb: 0x0f0f0f), placeholderColor: UIColor(rgb: 0x8f8f8f), primaryColor: UIColor(rgb: 0xffffff), controlColor: UIColor(rgb: 0x8f8f8f)),
+        itemInputField: PresentationInputFieldTheme(backgroundColor: UIColor(rgb: 0x081008), strokeColor: UIColor(rgb: 0x0f0f0f), placeholderColor: UIColor(rgb: 0x8f8f8f), primaryColor: UIColor(rgb: 0xffffff), controlColor: UIColor(rgb: 0x8f8f8f)),
         paymentOption: PresentationThemeList.PaymentOption(
             inactiveFillColor: UIColor(rgb: 0x00A650).withMultipliedAlpha(0.3),
             inactiveForegroundColor: UIColor(rgb: 0x00A650),
@@ -478,26 +478,26 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
     )
 
     let chatList = PresentationThemeChatList(
-        backgroundColor: UIColor(rgb: 0x000000),
-        itemSeparatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
-        itemBackgroundColor: UIColor(rgb: 0x000000),
-        pinnedItemBackgroundColor: UIColor(rgb: 0x1c1c1d),
-        itemHighlightedBackgroundColor: UIColor(rgb: 0x121212),
+        backgroundColor: UIColor(rgb: 0x050805),
+        itemSeparatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
+        itemBackgroundColor: UIColor(rgb: 0x050805),
+        pinnedItemBackgroundColor: UIColor(rgb: 0x0d160d),
+        itemHighlightedBackgroundColor: UIColor(rgb: 0x142014),
         pinnedItemHighlightedBackgroundColor: UIColor(rgb: 0x2b2b2c),
         itemSelectedBackgroundColor: UIColor(rgb: 0x191919),
-        titleColor: UIColor(rgb: 0xffffff),
+        titleColor: UIColor(rgb: 0xe6ffd6),
         secretTitleColor: UIColor(rgb: 0x00b12c),
-        dateTextColor: UIColor(rgb: 0x8d8e93),
-        authorNameColor: UIColor(rgb: 0xffffff),
-        messageTextColor: UIColor(rgb: 0x8d8e93),
+        dateTextColor: UIColor(rgb: 0x7c9a70),
+        authorNameColor: UIColor(rgb: 0xe6ffd6),
+        messageTextColor: UIColor(rgb: 0xa8c79e),
         messageHighlightedTextColor: UIColor(rgb: 0xffffff),
         messageDraftTextColor: UIColor(rgb: 0xdd4b39),
-        checkmarkColor: UIColor(rgb: 0xffffff),
+        checkmarkColor: UIColor(rgb: 0x9eff00),
         pendingIndicatorColor: UIColor(rgb: 0xffffff),
         failedFillColor: UIColor(rgb: 0xeb5545),
         failedForegroundColor: UIColor(rgb: 0xffffff),
         muteIconColor: UIColor(rgb: 0x8d8e93),
-        unreadBadgeActiveBackgroundColor: UIColor(rgb: 0xffffff),
+        unreadBadgeActiveBackgroundColor: UIColor(rgb: 0x9eff00),
         unreadBadgeActiveTextColor: UIColor(rgb: 0x000000),
         unreadBadgeInactiveBackgroundColor: UIColor(rgb: 0x666666),
         unreadBadgeInactiveTextColor:UIColor(rgb: 0x000000),
@@ -505,16 +505,16 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
         pinnedBadgeColor: UIColor(rgb: 0x767677),
         pinnedSearchBarColor: UIColor(rgb: 0x272728),
         regularSearchBarColor: UIColor(rgb: 0x272728),
-        sectionHeaderFillColor: .black,
-        sectionHeaderTextColor: UIColor(rgb: 0x8d8e93),
+        sectionHeaderFillColor: UIColor(rgb: 0x050805),
+        sectionHeaderTextColor: UIColor(rgb: 0x9eff00, alpha: 0.75),
         verifiedIconFillColor: UIColor(rgb: 0xffffff),
         verifiedIconForegroundColor:  UIColor(rgb: 0x000000),
         secretIconColor: UIColor(rgb: 0x00b12c),
         pinnedArchiveAvatarColor: PresentationThemeArchiveAvatarColors(backgroundColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0x72d5fd), bottomColor: UIColor(rgb: 0x2a9ef1)), foregroundColor: UIColor(rgb: 0xffffff)),
         unpinnedArchiveAvatarColor: PresentationThemeArchiveAvatarColors(backgroundColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0x666666), bottomColor: UIColor(rgb: 0x666666)), foregroundColor: UIColor(rgb: 0x000000)),
-        onlineDotColor: UIColor(rgb: 0x4cc91f),
-        storyUnseenColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0x34C76F), bottomColor: UIColor(rgb: 0x3DA1FD)),
-        storyUnseenPrivateColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0x7CD636), bottomColor: UIColor(rgb: 0x26B470)),
+        onlineDotColor: UIColor(rgb: 0x9eff00),
+        storyUnseenColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0x9eff00), bottomColor: UIColor(rgb: 0x00e676)),
+        storyUnseenPrivateColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0xb388ff), bottomColor: UIColor(rgb: 0x6a00ff)),
         storySeenColors: PresentationThemeGradientColors(topColor: UIColor(rgb: 0x48484A), bottomColor: UIColor(rgb: 0x48484A))
     )
 
@@ -662,7 +662,7 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
     let inputPanel = PresentationThemeChatInputPanel(
         panelBackgroundColor: rootNavigationBar.blurredBackgroundColor,
         panelBackgroundColorNoWallpaper: UIColor(rgb: 0x000000),
-        panelSeparatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
+        panelSeparatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
         panelControlAccentColor: UIColor(rgb: 0xffffff),
         panelControlColor: UIColor(rgb: 0xffffff),
         panelControlDisabledColor: UIColor(rgb: 0x808080, alpha: 0.5),
@@ -683,7 +683,7 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
     let inputMediaBackgroundColor = UIColor(rgb: 0xffffff, alpha: 0.14).blitOver(.black, alpha: 1.0).withAlphaComponent(0.95).withMultipliedAlpha(0.7)
 
     let inputMediaPanel = PresentationThemeInputMediaPanel(
-        panelSeparatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
+        panelSeparatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
         panelIconColor: UIColor(rgb: 0x808080),
         panelHighlightedIconBackgroundColor: UIColor(rgb: 0x808080).withMultipliedAlpha(0.25),
         panelHighlightedIconColor: UIColor(rgb: 0x808080).mixedWith(UIColor(rgb: 0xffffff), alpha: 0.35),
@@ -700,7 +700,7 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
         panelContentOpaqueSearchOverlayHighlightColor: UIColor(rgb: 0x808080).withMultipliedAlpha(0.25),
         stickersBackgroundColor: inputMediaBackgroundColor,
         stickersSectionTextColor: UIColor(rgb: 0x7b7b7b),
-        stickersSearchBackgroundColor: UIColor(rgb: 0x1c1c1d),
+        stickersSearchBackgroundColor: UIColor(rgb: 0x0b120b),
         stickersSearchPlaceholderColor: UIColor(rgb: 0x8d8e93),
         stickersSearchPrimaryColor: UIColor(rgb: 0xffffff),
         stickersSearchControlColor: UIColor(rgb: 0x8d8e93),
@@ -720,8 +720,8 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
     )
 
     let historyNavigation = PresentationThemeChatHistoryNavigation(
-        fillColor: UIColor(rgb: 0x1c1c1d),
-        strokeColor: UIColor(rgb: 0x545458, alpha: 0.55),
+        fillColor: UIColor(rgb: 0x0b120b),
+        strokeColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
         foregroundColor: UIColor(rgb: 0xffffff),
         badgeBackgroundColor: UIColor(rgb: 0xffffff),
         badgeStrokeColor: UIColor(rgb: 0xffffff),
@@ -745,11 +745,11 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
     let actionSheet = PresentationThemeActionSheet(
         dimColor: UIColor(white: 0.0, alpha: 0.5),
         backgroundType: .dark,
-        opaqueItemBackgroundColor: UIColor(rgb: 0x1c1c1d),
+        opaqueItemBackgroundColor: UIColor(rgb: 0x0b120b),
         itemBackgroundColor: UIColor(rgb: 0x1c1c1d, alpha: 0.8),
         opaqueItemHighlightedBackgroundColor: UIColor(white: 0.0, alpha: 1.0),
         itemHighlightedBackgroundColor: UIColor(rgb: 0x000000, alpha: 0.5),
-        opaqueItemSeparatorColor: UIColor(rgb: 0x545458, alpha: 0.55),
+        opaqueItemSeparatorColor: UIColor(rgb: 0x1a2a14, alpha: 0.9),
         standardActionTextColor: UIColor(rgb: 0xffffff),
         destructiveActionTextColor: UIColor(rgb: 0xeb5545),
         disabledActionTextColor: UIColor(rgb: 0x4d4d4d),
@@ -783,12 +783,12 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
     )
 
     let inAppNotification = PresentationThemeInAppNotification(
-        fillColor: UIColor(rgb: 0x1c1c1d),
+        fillColor: UIColor(rgb: 0x0b120b),
         primaryTextColor: UIColor(rgb: 0xffffff),
         expandedNotification: PresentationThemeExpandedNotification(
             backgroundType: .dark,
             navigationBar: PresentationThemeExpandedNotificationNavigationBar(
-                backgroundColor: UIColor(rgb: 0x1c1c1d),
+                backgroundColor: UIColor(rgb: 0x0b120b),
                 primaryTextColor: UIColor(rgb: 0xffffff),
                 controlColor: UIColor(rgb: 0xffffff),
                 separatorColor: UIColor(rgb: 0x000000)

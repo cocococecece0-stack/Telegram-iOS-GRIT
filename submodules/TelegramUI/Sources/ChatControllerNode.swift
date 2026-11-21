@@ -232,6 +232,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     let backgroundNode: WallpaperBackgroundNode
     let gritScanlineNode: ASDisplayNode
     private var gritScanlineObserver: NSObjectProtocol?
+    private var gritPulseTimer: SwiftSignalKit.Timer?
     var historyNode: ChatHistoryListNodeImpl
     var blurredHistoryNode: ASImageNode?
     let historyNodeContainer: HistoryNodeContainer
@@ -881,6 +882,19 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
             self?.gritScanlineNode.isHidden = !GritSettings.crtEnabled
         }
 
+        // GRIT PULSE: the CRT grain breathes slowly, giving the chat a live neon feel.
+        if GritSettings.pulseEnabled && GritSettings.crtEnabled {
+            var phase: CGFloat = 0.0
+            self.gritPulseTimer = SwiftSignalKit.Timer(timeout: 0.05, repeat: true, completion: { [weak self] in
+                phase += 0.08
+                let alpha = 0.62 + 0.28 * (0.5 + 0.5 * sin(phase))
+                Queue.mainQueue().async {
+                    self?.gritScanlineNode.alpha = alpha
+                }
+            }, queue: Queue.mainQueue())
+            self.gritPulseTimer?.start()
+        }
+
         getContentAreaInScreenSpaceImpl = { [weak self] in
             guard let strongSelf = self else {
                 return CGRect()
@@ -1118,6 +1132,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         if let observer = self.gritScanlineObserver {
             NotificationCenter.default.removeObserver(observer)
         }
+        self.gritPulseTimer?.invalidate()
         self.interactiveEmojisDisposable?.dispose()
         self.openStickersDisposable?.dispose()
         self.displayVideoUnmuteTipDisposable?.dispose()

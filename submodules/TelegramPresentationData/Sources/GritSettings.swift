@@ -16,6 +16,7 @@ public enum GritFeature: String {
 
 public enum GritSettings {
     public static let changedNotification = Notification.Name("GRIT.settingsChanged")
+    public static let codeFxNotification = Notification.Name("GRIT.codeFx")
 
     private static func key(_ feature: GritFeature) -> String {
         return "GRIT.enable." + feature.rawValue

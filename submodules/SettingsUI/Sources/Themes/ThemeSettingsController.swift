@@ -1186,6 +1186,9 @@ public func themeSettingsController(context: AccountContext, focusOnItemTag: The
         if !bubbleMode {
             chatThemes = bubblelessCarouselThemes(chatThemes: chatThemes)
         } else {
+            // GRIT: expose the built-in Night theme in the Appearance carousel so
+            // GRIT ACID / GRIT VOID are reachable in one tap from Settings.
+            chatThemes.insert(.builtin(.night), at: 0)
             chatThemes.insert(.builtin(.dayClassic), at: 0)
         }
         // The hidden rows slide only on the update where the mode flipped.

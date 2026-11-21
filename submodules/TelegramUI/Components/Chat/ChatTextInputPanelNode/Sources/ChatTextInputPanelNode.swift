@@ -4300,12 +4300,21 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
             return
         }
 
-        // GRIT SECRET: type "grit" or "ENTER THE GRIT" in any chat.
+        // GRIT SECRET CODES: grit / enter the grit / acid / void / filth / pulse.
         if GritSettings.secretEnabled, self.gritCodeArmed, let interfaceInteraction = self.interfaceInteraction {
             let typed = self.inputTextState.inputText.string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            if typed == "grit" || typed == "enter the grit" {
+            let codeEffects: [String: String] = [
+                "grit": "GRIT",
+                "enter the grit": "GRIT",
+                "acid": "ACID",
+                "void": "VOID",
+                "filth": "FILTH",
+                "pulse": "PULSE"
+            ]
+            if let effect = codeEffects[typed] {
                 self.gritCodeArmed = false
                 let _ = GritProgress.noteCode()
+                NotificationCenter.default.post(name: GritSettings.codeFxNotification, object: effect)
                 self.hapticFeedback.impact(.rigid)
                 self.ignoreChatInputTextNodeDidUpdateText = true
                 interfaceInteraction.updateTextInputStateAndMode({ _, inputMode in

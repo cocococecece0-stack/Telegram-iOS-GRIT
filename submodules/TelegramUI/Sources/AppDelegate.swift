@@ -1018,7 +1018,12 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 if buildConfig.isInternalBuild {
                     icons.append(PresentationAppIcon(name: "WhiteFilledIcon", imageName: "WhiteFilledIcon"))
                 }
-                
+
+                // GRIT: mod icons were in the bundle but never registered, so they
+                // could not be selected in Settings -> Appearance -> App Icon.
+                icons.append(PresentationAppIcon(name: "GRIT", imageName: "GRITIcon"))
+                icons.append(PresentationAppIcon(name: "GRITVOID", imageName: "GRITVOIDIcon"))
+
                 icons.append(PresentationAppIcon(name: "Premium", imageName: "Premium", isPremium: true))
                 icons.append(PresentationAppIcon(name: "PremiumTurbo", imageName: "PremiumTurbo", isPremium: true))
                 icons.append(PresentationAppIcon(name: "PremiumBlack", imageName: "PremiumBlack", isPremium: true))

@@ -153,6 +153,10 @@ extension PeerInfoScreenNode {
             push(dataAndStorageController(context: self.context))
         case .appearance:
             push(themeSettingsController(context: self.context))
+        case .gritThemes:
+            // Straight to the theme picker where the GRIT ACID / GRIT VOID
+            // color presets live (the Appearance carousel hides them).
+            push(themePickerController(context: self.context))
         case .language:
             push(LocalizationListController(context: self.context))
         case .premium:

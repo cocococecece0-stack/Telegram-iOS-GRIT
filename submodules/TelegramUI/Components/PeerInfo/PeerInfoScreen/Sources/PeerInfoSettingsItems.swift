@@ -264,7 +264,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
 
     let gritProgress = GritProgress.registerOpen()
     items[.grit]!.append(PeerInfoScreenDisclosureItem(id: 0, label: .text("DAY \(gritProgress.streak) · \(gritProgress.codes) CODES"), text: "GRIT // ACID / VOID", icon: PresentationResourcesSettings.appearance, action: {
-        interaction.openSettings(.appearance)
+        interaction.openSettings(.gritThemes)
     }))
     items[.grit]!.append(gritSwitch(id: 1, text: "GRIT CRT", feature: .crt, icon: PresentationResourcesSettings.appearance))
     items[.grit]!.append(gritSwitch(id: 2, text: "GRIT PULSE", feature: .pulse, icon: PresentationResourcesSettings.appearance))
@@ -277,6 +277,9 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     items[.grit]!.append(gritSwitch(id: 5, text: "GRIT SECRET CODE", feature: .secret, icon: PresentationResourcesSettings.security))
     items[.grit]!.append(gritSwitch(id: 6, text: "GRIT SHIELD", feature: .antiScreenshot, icon: PresentationResourcesSettings.security))
     items[.grit]!.append(gritSwitch(id: 7, text: "GRIT STREAK", feature: .streak, icon: PresentationResourcesSettings.appearance))
+    items[.grit]!.append(PeerInfoScreenActionItem(id: 8, text: "GRIT CODES · grit / acid / void / filth / pulse", color: .accent, icon: nil, action: {
+        NotificationCenter.default.post(name: GritSettings.codeFxNotification, object: "ACID")
+    }))
 
     let notificationsWarning: Bool
     if let settings = data.globalSettings {

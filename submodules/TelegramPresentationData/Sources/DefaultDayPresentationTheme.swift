@@ -470,9 +470,9 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
     )
     
     let list = PresentationThemeList(
-        blocksBackgroundColor: UIColor(rgb: 0xefeff4),
+        blocksBackgroundColor: UIColor(rgb: 0xeef4e8),
         modalBlocksBackgroundColor: UIColor(rgb: 0xefeff4),
-        plainBackgroundColor: UIColor(rgb: 0xffffff),
+        plainBackgroundColor: UIColor(rgb: 0xf7faf4),
         modalPlainBackgroundColor: UIColor(rgb: 0xffffff),
         itemPrimaryTextColor: UIColor(rgb: 0x000000),
         itemSecondaryTextColor: UIColor(rgb: 0x8e8e93),
@@ -487,7 +487,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         itemBlocksSeparatorColor: UIColor(rgb: 0xc8c7cc),
         itemPlainSeparatorColor: UIColor(rgb: 0xc8c7cc),
         disclosureArrowColor: UIColor(rgb: 0xbab9be),
-        sectionHeaderTextColor: UIColor(rgb: 0x6d6d72),
+        sectionHeaderTextColor: UIColor(rgb: 0x14a33c),
         freeTextColor: UIColor(rgb: 0x6d6d72),
         freeTextErrorColor: UIColor(rgb: 0xcf3030),
         freeTextSuccessColor: UIColor(rgb: 0x26972c),
@@ -537,10 +537,10 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
     )
     
     let chatList = PresentationThemeChatList(
-        backgroundColor: UIColor(rgb: 0xffffff),
-        itemSeparatorColor: UIColor(rgb: 0xc8c7cc),
-        itemBackgroundColor: UIColor(rgb: 0xffffff),
-        pinnedItemBackgroundColor: UIColor(rgb: 0xf7f7f7),
+        backgroundColor: UIColor(rgb: 0xf7faf4),
+        itemSeparatorColor: UIColor(rgb: 0xd4e2c9),
+        itemBackgroundColor: UIColor(rgb: 0xf7faf4),
+        pinnedItemBackgroundColor: UIColor(rgb: 0xe8f2e0),
         itemHighlightedBackgroundColor: UIColor(rgb: 0xe5e5ea),
         pinnedItemHighlightedBackgroundColor: UIColor(rgb: 0xe5e5ea),
         itemSelectedBackgroundColor: UIColor(rgb: 0xe9f0fa),
@@ -565,7 +565,7 @@ public func makeDefaultDayPresentationTheme(extendingThemeReference: Presentatio
         pinnedSearchBarColor: UIColor(rgb: 0xe5e5e5),
         regularSearchBarColor: UIColor(rgb: 0xe9e9e9),
         sectionHeaderFillColor: .white,
-        sectionHeaderTextColor: UIColor(rgb: 0x6d6d72),
+        sectionHeaderTextColor: UIColor(rgb: 0x14a33c),
         verifiedIconFillColor: defaultDayAccentColor,
         verifiedIconForegroundColor: UIColor(rgb: 0xffffff),
         secretIconColor: UIColor(rgb: 0x00b12c),

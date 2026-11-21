@@ -85,6 +85,44 @@
 				<key>UIPrerenderedIcon</key>
 				<true/>
 			</dict>
+			<key>GRIT</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>GRITIconIpad</string>
+					<string>GRITIconLargeIpad</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<true/>
+			</dict>
+			<key>GRITVOID</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>GRITVOIDIconIpad</string>
+					<string>GRITVOIDIconLargeIpad</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<true/>
+			</dict>
+			<key>GRIT</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>GRITIcon</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<true/>
+			</dict>
+			<key>GRITVOID</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>GRITVOIDIcon</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<true/>
+			</dict>
 		</dict>
 		<key>CFBundlePrimaryIcon</key>
 		<dict>

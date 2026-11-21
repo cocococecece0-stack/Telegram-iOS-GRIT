@@ -28,6 +28,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
     
     private let suggestedLocalization = Promise<SuggestedLocalizationInfo?>()
     private let activateLocalizationDisposable = MetaDisposable()
+    private var gritGlitchTimer: SwiftSignalKit.Timer?
     
     private let startButton: SolidRoundedButtonNode
     private let hapticFeedback = HapticFeedback()
@@ -124,6 +125,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
     
     deinit {
         self.activateLocalizationDisposable.dispose()
+        self.gritGlitchTimer?.invalidate()
     }
     
     public override func loadDisplayNode() {
@@ -198,6 +200,29 @@ public final class AuthorizationSequenceSplashController: ViewController {
             UIView.animate(withDuration: 0.34, delay: 0.0, usingSpringWithDamping: 0.22, initialSpringVelocity: 0.9, options: [], animations: {
                 self.startButton.view.transform = .identity
             })
+
+            // GRIT GLITCH: corrupt the button label, then snap back to the real title.
+            let finalTitle = self.startButton.title ?? "ENTER THE GRIT"
+            let frames = ["▓▓▓▓▓▓▓▓▓▓", "EΞTER THE GRIT", "ENTE▒ THE GRIT", "ENTER THE G░░T", "░▒▓ ENTER THE GRIT", finalTitle]
+            var index = 0
+            let timer = SwiftSignalKit.Timer(timeout: 0.07, repeat: true, completion: { [weak self] in
+                Queue.mainQueue().async {
+                    guard let self else {
+                        return
+                    }
+                    if index < frames.count {
+                        self.startButton.title = frames[index]
+                        index += 1
+                    } else {
+                        self.gritGlitchTimer?.invalidate()
+                        self.gritGlitchTimer = nil
+                        self.startButton.title = finalTitle
+                    }
+                    let _ = self.startButton.updateLayout(width: max(self.startButton.frame.width, 240.0))
+                }
+            }, queue: Queue.mainQueue())
+            self.gritGlitchTimer = timer
+            timer.start()
         }
     }
     

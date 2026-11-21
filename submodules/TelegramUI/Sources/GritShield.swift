@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import SwiftSignalKit
+import Display
 import ScreenCaptureDetection
 import TelegramPresentationData
 
@@ -12,6 +13,8 @@ public final class GritShield {
     private var disposable: Disposable?
     private var screenshotOverlay: UIView?
     private var recordingOverlay: UIView?
+    private var codeOverlay: UIView?
+    private var fxObserver: NSObjectProtocol?
     private var hideTimer: SwiftSignalKit.Timer?
     private var recordingCheckTimer: SwiftSignalKit.Timer?
 
@@ -45,6 +48,85 @@ public final class GritShield {
             }
         }, queue: Queue.mainQueue())
         self.recordingCheckTimer?.start()
+
+        self.fxObserver = NotificationCenter.default.addObserver(forName: GritSettings.codeFxNotification, object: nil, queue: .main) { [weak self] note in
+            guard let code = note.object as? String else {
+                return
+            }
+            self?.flashCode(code)
+        }
+    }
+
+    /// GRIT secret codes: `acid`, `void`, `filth`, `pulse`, `grit`.
+    public func flashCode(_ code: String) {
+        guard let window = self.window, self.codeOverlay == nil, GritSettings.secretEnabled else {
+            return
+        }
+        let color: UIColor
+        let title: String
+        switch code {
+        case "ACID":
+            color = UIColor(rgb: 0x9eff00)
+            title = "ACID // OVERDOSE"
+        case "VOID":
+            color = UIColor(rgb: 0xb388ff)
+            title = "VOID // NOTHING HERE"
+        case "FILTH":
+            color = UIColor(rgb: 0x2f6b28)
+            title = "FILTH // WELCOME TO THE GUTTER"
+        case "PULSE":
+            color = UIColor(rgb: 0x00e676)
+            title = "PULSE // HEARTBEAT"
+        default:
+            color = UIColor(rgb: 0x9eff00)
+            title = "ENTER THE GRIT"
+        }
+
+        let overlay = UIView(frame: window.bounds)
+        overlay.backgroundColor = UIColor.black
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.isUserInteractionEnabled = false
+        overlay.layer.zPosition = 10002
+        overlay.alpha = 0.0
+
+        let wash = UIView(frame: overlay.bounds)
+        wash.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        wash.backgroundColor = color.withAlphaComponent(0.22)
+        overlay.addSubview(wash)
+
+        let label = UILabel(frame: overlay.bounds.insetBy(dx: 24.0, dy: 24.0))
+        label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        label.text = title
+        label.textColor = color
+        label.font = UIFont.systemFont(ofSize: 28.0, weight: .black)
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        overlay.addSubview(label)
+
+        window.addSubview(overlay)
+        self.codeOverlay = overlay
+        UIView.animate(withDuration: 0.1, animations: {
+            overlay.alpha = 1.0
+        }, completion: { [weak self] _ in
+            self?.hideTimer?.invalidate()
+            let timer = SwiftSignalKit.Timer(timeout: 1.1, repeat: false, completion: { [weak self] in
+                Queue.mainQueue().async {
+                    guard let self else {
+                        return
+                    }
+                    UIView.animate(withDuration: 0.25, animations: {
+                        overlay.alpha = 0.0
+                    }, completion: { _ in
+                        overlay.removeFromSuperview()
+                        if self.codeOverlay === overlay {
+                            self.codeOverlay = nil
+                        }
+                    })
+                }
+            }, queue: Queue.mainQueue())
+            self?.hideTimer = timer
+            timer.start()
+        })
     }
 
     private func updateRecordingOverlay() {
@@ -132,10 +214,14 @@ public final class GritShield {
 
     deinit {
         self.disposable?.dispose()
+        if let observer = self.fxObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
         self.hideTimer?.invalidate()
         self.recordingCheckTimer?.invalidate()
         self.screenshotOverlay?.removeFromSuperview()
         self.recordingOverlay?.removeFromSuperview()
+        self.codeOverlay?.removeFromSuperview()
     }
 }
 
