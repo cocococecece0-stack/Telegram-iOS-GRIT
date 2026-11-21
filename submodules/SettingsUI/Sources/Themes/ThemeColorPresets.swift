@@ -37,7 +37,10 @@ var dayColorPresets: [PresentationThemeAccentColor] = [
     PresentationThemeAccentColor(index: 104, baseColor: .preset, accentColor: 0xea8ced, bubbleColors: [0xea8ced, 0x00c2ed], wallpaper: nil),
 
     // GRIT ACID (day) — фирменный пресет мода
-    PresentationThemeAccentColor(index: 108, baseColor: .preset, accentColor: 0x14a33c, bubbleColors: [0xd6ffcf, 0x14a33c], wallpaper: nil)
+    PresentationThemeAccentColor(index: 108, baseColor: .preset, accentColor: 0x14a33c, bubbleColors: [0xd6ffcf, 0x14a33c], wallpaper: nil),
+
+    // GRIT VOID (day) — фиолетовый ток на белом бетоне
+    PresentationThemeAccentColor(index: 109, baseColor: .preset, accentColor: 0x7a1fff, bubbleColors: [0xe8deff, 0x7a1fff], wallpaper: nil)
 ]
 
 var nightColorPresets: [PresentationThemeAccentColor] = [
@@ -47,5 +50,8 @@ var nightColorPresets: [PresentationThemeAccentColor] = [
     PresentationThemeAccentColor(index: 104, baseColor: .preset, accentColor: 0xea8ced, bubbleColors: [0xea8ced, 0x00c2ed], wallpaper: patternWallpaper(data: .variant6, colors: [0x8adbf2, 0x888dec, 0xe39fea, 0x679ced], intensity: -30, rotation: nil)),
 
     // GRIT ACID (night) — токсичный лайм на грязном асфальте
-    PresentationThemeAccentColor(index: 109, baseColor: .preset, accentColor: 0x9eff00, bubbleColors: [0x1b5e20, 0x00e676, 0x9eff00], wallpaper: patternWallpaper(data: .variant3, colors: [0x050a05, 0x0e1a0e, 0x1b2b12, 0x0a1206], intensity: -35, rotation: nil))
+    PresentationThemeAccentColor(index: 109, baseColor: .preset, accentColor: 0x9eff00, bubbleColors: [0x1b5e20, 0x00e676, 0x9eff00], wallpaper: patternWallpaper(data: .variant3, colors: [0x050a05, 0x0e1a0e, 0x1b2b12, 0x0a1206], intensity: -35, rotation: nil)),
+
+    // GRIT VOID (night) — чёрный лак с фиолетовым током
+    PresentationThemeAccentColor(index: 110, baseColor: .preset, accentColor: 0xb388ff, bubbleColors: [0x120a1f, 0x6a00ff, 0xb388ff], wallpaper: patternWallpaper(data: .variant6, colors: [0x050308, 0x0e0716, 0x1a0f2b, 0x080510], intensity: -35, rotation: nil))
 ]

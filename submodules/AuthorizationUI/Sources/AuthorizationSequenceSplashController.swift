@@ -30,6 +30,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
     private let activateLocalizationDisposable = MetaDisposable()
     
     private let startButton: SolidRoundedButtonNode
+    private let hapticFeedback = HapticFeedback()
     
     init(accountManager: AccountManager<TelegramAccountManagerTypes>, account: UnauthorizedAccount, theme: PresentationTheme) {
         self.accountManager = accountManager
@@ -100,6 +101,8 @@ public final class AuthorizationSequenceSplashController: ViewController {
         }
         
         self.startButton.pressed = { [weak self] in
+            // GRIT THUMP: a short, heavy tap when entering the grit.
+            self?.hapticFeedback.impact()
             self?.activateLocalization("en")
         }
         

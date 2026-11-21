@@ -25,11 +25,18 @@ check build-system/grit-configuration.json '"app_specific_url_scheme": "grit"'
 check build-system/Make/Make.py 'bazel_command_line.disable_provisioning_profiles = True'
 check build-system/Make/Make.py "os.getenv('GRIT_DISABLE_EXTENSIONS') == '1'"
 check .github/workflows/signed-build.yml 'GRIT_P12_BASE64'
+check .github/workflows/grit-build.yml 'GRIT-TG-simulator.ipa'
 check submodules/TelegramUIPreferences/Sources/PresentationThemeSettings.swift 'theme: .builtin(.night)'
 check submodules/SettingsUI/Sources/Themes/ThemeColorPresets.swift 'GRIT ACID (night)'
 check submodules/SettingsUI/Sources/Themes/ThemeSettingsAppIconItem.swift 'name = "GRIT ACID"'
 check Telegram/BUILD '"GRIT",'
+check Telegram/BUILD '"GRITVOID",'
 [ -f Telegram/Telegram-iOS/GRIT.alticon/GRITIcon@3x.png ] || fail 'missing GRIT alternate icon'
+check submodules/TelegramPresentationData/Sources/DefaultDarkPresentationTheme.swift 'GRIT FILTH'
+check submodules/AuthorizationUI/Sources/AuthorizationSequenceSplashController.swift 'GRIT THUMP'
+check submodules/SettingsUI/Sources/Themes/ThemeColorPresets.swift 'GRIT VOID (night)'
+check submodules/SettingsUI/Sources/Themes/ThemeSettingsAppIconItem.swift 'name = "GRIT VOID"'
+[ -f Telegram/Telegram-iOS/GRITVOID.alticon/GRITVOIDIcon@3x.png ] || fail 'missing GRIT VOID alternate icon'
 
 python3 -c 'import json; json.load(open("Telegram/Telegram-iOS/Telegram.icon/icon.json")); json.load(open("build-system/grit-configuration.json"))' \
     || fail 'invalid JSON in mod assets'

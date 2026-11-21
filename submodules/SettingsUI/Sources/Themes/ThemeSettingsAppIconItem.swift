@@ -403,6 +403,8 @@ class ThemeSettingsAppIconItemNode: ListViewItemNode, ItemListItemNode {
                                     bordered = false
                                 case "GRIT":
                                     name = "GRIT ACID"
+                                case "GRITVOID":
+                                    name = "GRIT VOID"
                                 case "WhiteFilled":
                                     name = "⍺ White"
                                 case "New1":

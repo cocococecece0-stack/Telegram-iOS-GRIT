@@ -327,11 +327,12 @@ public func customizeDefaultDarkPresentationTheme(theme: PresentationTheme, edit
     )
 }
 
+// GRIT: dirty asphalt + toxic lime instead of Telegram's stock pastel gradient.
 public let defaultDarkWallpaperGradientColors: [UIColor] = [
-    UIColor(rgb: 0x598bf6),
-    UIColor(rgb: 0x7a5eef),
-    UIColor(rgb: 0xd67cff),
-    UIColor(rgb: 0xf38b58)
+    UIColor(rgb: 0x050a05),
+    UIColor(rgb: 0x0e1a0e),
+    UIColor(rgb: 0x1b2b12),
+    UIColor(rgb: 0x0a1206)
 ]
 
 public func makeDefaultDarkPresentationTheme(extendingThemeReference: PresentationThemeReference? = nil, preview: Bool) -> PresentationTheme {
@@ -727,7 +728,8 @@ public func makeDefaultDarkPresentationTheme(extendingThemeReference: Presentati
         badgeTextColor:  UIColor(rgb: 0x000000)
     )
 
-    let defaultPatternWallpaper: TelegramWallpaper = defaultBuiltinWallpaper(data: .default, colors: defaultDarkWallpaperGradientColors.map(\.rgb), intensity: -34)
+    // GRIT FILTH: built-in grain pattern, much darker than the stock wallpaper.
+    let defaultPatternWallpaper: TelegramWallpaper = defaultBuiltinWallpaper(data: .variant3, colors: defaultDarkWallpaperGradientColors.map(\.rgb), intensity: -35)
     
     let chat = PresentationThemeChat(
         defaultWallpaper: defaultPatternWallpaper,

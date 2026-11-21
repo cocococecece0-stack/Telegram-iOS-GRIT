@@ -75,14 +75,24 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
-          APP=$(find bazel-bin -type d -name 'Telegram.app' -print -quit)
-          test -n "$APP"
-          cp -R "$APP" "$GITHUB_WORKSPACE/artifacts/GRIT-TG.app"
+          IPA=$(find bazel-bin -type f -name 'Telegram.ipa' -print -quit)
+          test -n "$IPA"
+          cp "$IPA" "$GITHUB_WORKSPACE/artifacts/GRIT-TG-simulator.ipa"
+
+          # Simulator IPA is a zip; also expose the raw .app when possible.
+          UNPACK=$(mktemp -d)
+          if unzip -q "$IPA" -d "$UNPACK"; then
+            APP=$(find "$UNPACK/Payload" -maxdepth 1 -type d -name '*.app' -print -quit || true)
+            if [ -n "$APP" ]; then
+              cp -R "$APP" "$GITHUB_WORKSPACE/artifacts/GRIT-TG.app"
+            fi
+          fi
+          ls -lh "$GITHUB_WORKSPACE/artifacts"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: GRIT-TG-simulator-arm64
-          path: artifacts/GRIT-TG.app
+          path: artifacts/
           if-no-files-found: error
           retention-days: 14
