@@ -516,7 +516,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         self.gritScanlineNode = ASDisplayNode()
         self.gritScanlineNode.isUserInteractionEnabled = false
         self.gritScanlineNode.backgroundColor = gritScanlinePatternImage().flatMap { UIColor(patternImage: $0) }
-        self.gritScanlineNode.opacity = 0.9
+        self.gritScanlineNode.alpha = 0.9
         if case .standard(.embedded) = chatPresentationInterfaceState.mode {
             // A history embedded in a profile pane (Saved): the wallpaper is decoration there. The chat screen itself is
             // left as it is (its own pass).
