@@ -334,6 +334,7 @@ alternate_icon_folders = [
     "BlueClassicIcon",
     "BlueFilledIcon",
     "WhiteFilledIcon",
+    "GRIT",
     "New1",
     "New2",
     "Premium",

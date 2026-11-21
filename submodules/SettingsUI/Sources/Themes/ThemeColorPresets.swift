@@ -34,12 +34,18 @@ var dayColorPresets: [PresentationThemeAccentColor] = [
     PresentationThemeAccentColor(index: 101, baseColor: .preset, accentColor: 0x0088ff, bubbleColors: [0x0088ff, 0xff53f4], wallpaper: nil),
     PresentationThemeAccentColor(index: 102, baseColor: .preset, accentColor: 0x00b09b, bubbleColors: [0xaee946, 0x00b09b], wallpaper: nil),
     PresentationThemeAccentColor(index: 103, baseColor: .preset, accentColor: 0xd33213, bubbleColors: [0xf9db00, 0xd33213], wallpaper: nil),
-    PresentationThemeAccentColor(index: 104, baseColor: .preset, accentColor: 0xea8ced, bubbleColors: [0xea8ced, 0x00c2ed], wallpaper: nil)
+    PresentationThemeAccentColor(index: 104, baseColor: .preset, accentColor: 0xea8ced, bubbleColors: [0xea8ced, 0x00c2ed], wallpaper: nil),
+
+    // GRIT ACID (day) — фирменный пресет мода
+    PresentationThemeAccentColor(index: 108, baseColor: .preset, accentColor: 0x14a33c, bubbleColors: [0xd6ffcf, 0x14a33c], wallpaper: nil)
 ]
 
 var nightColorPresets: [PresentationThemeAccentColor] = [
 //    PresentationThemeAccentColor(index: 101, baseColor: .preset, accentColor: 0x0088ff, bubbleColors: [0x0088ff, 0xff53f4], wallpaper: patternWallpaper(data: .variant4, colors: [0xe4b2ea, 0x8376c2, 0xeab9d9, 0xb493e6], intensity: -35, rotation: nil)),
     PresentationThemeAccentColor(index: 102, baseColor: .preset, accentColor: 0x00b09b, bubbleColors: [0xaee946, 0x00b09b], wallpaper: patternWallpaper(data: .variant9, colors: [0xe4b2ea, 0x8376c2, 0xeab9d9, 0xb493e6], intensity: -35, rotation: nil)),
     PresentationThemeAccentColor(index: 103, baseColor: .preset, accentColor: 0xd33213, bubbleColors: [0xf9db00, 0xd33213], wallpaper: patternWallpaper(data: .variant2, colors: [0xfec496, 0xdd6cb9, 0x962fbf, 0x4f5bd5], intensity: -40, rotation: nil)),
-    PresentationThemeAccentColor(index: 104, baseColor: .preset, accentColor: 0xea8ced, bubbleColors: [0xea8ced, 0x00c2ed], wallpaper: patternWallpaper(data: .variant6, colors: [0x8adbf2, 0x888dec, 0xe39fea, 0x679ced], intensity: -30, rotation: nil))
+    PresentationThemeAccentColor(index: 104, baseColor: .preset, accentColor: 0xea8ced, bubbleColors: [0xea8ced, 0x00c2ed], wallpaper: patternWallpaper(data: .variant6, colors: [0x8adbf2, 0x888dec, 0xe39fea, 0x679ced], intensity: -30, rotation: nil)),
+
+    // GRIT ACID (night) — токсичный лайм на грязном асфальте
+    PresentationThemeAccentColor(index: 109, baseColor: .preset, accentColor: 0x9eff00, bubbleColors: [0x1b5e20, 0x00e676, 0x9eff00], wallpaper: patternWallpaper(data: .variant3, colors: [0x050a05, 0x0e1a0e, 0x1b2b12, 0x0a1206], intensity: -35, rotation: nil))
 ]

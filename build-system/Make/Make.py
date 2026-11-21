@@ -483,12 +483,15 @@ def resolve_configuration(base_path, bazel_command_line: BazelCommandLine, argum
         provisioning_profiles_path=provisioning_path,
         additional_codesigning_output_path=additional_codesigning_output_path
     )
-    if codesigning_data.aps_environment is None:
+    # GRIT: when provisioning profiles are disabled (simulator builds) an
+    # aps-environment is irrelevant — allow an empty value there.
+    skip_aps_check = bazel_command_line is not None and getattr(bazel_command_line, 'disable_provisioning_profiles', False)
+    if codesigning_data.aps_environment is None and not skip_aps_check:
         print('Could not find a valid aps-environment entitlement in the provided provisioning profiles')
         sys.exit(1)
 
     if bazel_command_line is not None:
-        build_configuration.write_to_variables_file(bazel_path=bazel_command_line.bazel, use_xcode_managed_codesigning=codesigning_data.use_xcode_managed_codesigning, aps_environment=codesigning_data.aps_environment, path=configuration_repository_path + '/variables.bzl')
+        build_configuration.write_to_variables_file(bazel_path=bazel_command_line.bazel, use_xcode_managed_codesigning=codesigning_data.use_xcode_managed_codesigning, aps_environment=codesigning_data.aps_environment or '', path=configuration_repository_path + '/variables.bzl')
 
     provisioning_profile_files = []
     for file_name in os.listdir(provisioning_path):
@@ -617,6 +620,11 @@ def build(bazel, arguments):
         override_xcode_version=arguments.overrideXcodeVersion,
         bazel_user_root=arguments.bazelUserRoot
     )
+
+    # GRIT: simulator builds do not need provisioning profiles. The bundled
+    # fake profiles expire, so disable them and let Bazel build unsigned.
+    if arguments.configuration in ('debug_sim_arm64', 'release_sim_arm64'):
+        bazel_command_line.disable_provisioning_profiles = True
 
     if arguments.lock:
         bazel_command_line.set_lock(True)

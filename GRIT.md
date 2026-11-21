@@ -8,7 +8,7 @@
 | Что | Было | Стало |
 |---|---|---|
 | Имя приложения | Telegram | **GRIT TG** |
-| Bundle ID | `ph.telegra.Telegraph` | оставлен апстримовым в сборке* |
+| Bundle ID | `ph.telegra.Telegraph` | `org.grit.telegram` |
 | URL-схема | `tg` | `grit` |
 | Акцент в тёмной теме | `#3E88F7` | `#9EFF00` (кислотный лайм) |
 | Градиент исходящих пузырей | синий/фиолетовый | `#00E676 → #9EFF00 → #1B5E20` |
@@ -16,13 +16,16 @@
 | Нейтральная ночная тема | `#3E88F7` | `#9EFF00` |
 | Иконка | синий круг | зелёно-кислотный градиент (`Telegram.icon/icon.json`) |
 | Кнопка на экране входа | `Start Messaging` | `ENTER THE GRIT` |
+| Стартовая тема | светлая `dayClassic` | **тёмная `night` по умолчанию** |
+| Пресеты в Настройки → Тема | обычные | добавлен **`GRIT ACID`** (день и ночь, свой градиент пузырей и грязный валлпейпер) |
+| Доп. иконка | — | **`GRIT ACID`** в списке иконок (кислотный зелёный, тёмный самолёт) |
 
 Всё остальное — оригинальный код Telegram iOS с его архитектурой, MTProto и UI.
 
-\* bundle id в `grit-configuration.json` оставлен `ph.telegra.Telegraph`: встроенные
-fake provisioning-профили завязаны именно на него, и без своих сертификатов сборка
-падает на `aps-environment`. Если нужен свой bundle id — замените профили в
-`build-system/fake-codesigning` на свои, а затем поменяйте `bundle_id` в конфиге.
+\* для симуляторной сборки в `Make.py` отключены provisioning-профили: встроенные
+фейк-профили апстрима просрочены (expiration 30.10.2026), поэтому без этого билд
+падает на `ProcessEntitlementsFiles`. Это также позволяет использовать свой
+`bundle_id` без ошибки `aps-environment`.
 
 ## Сборка на GitHub
 
@@ -54,6 +57,21 @@ python3 -u build-system/Make/Make.py \
   --configuration=debug_sim_arm64 \
   --buildNumber=1
 ```
+
+## Свой сертификат
+
+Если есть свой P12 + provisioning profile — можно собрать по-настоящему подписанный билд:
+
+1. Положите свои `.p12` в `build-system/fake-codesigning/certs/` и профили в
+   `build-system/fake-codesigning/profiles/` с именами из `profile_name_mapping`
+   (`Telegram.mobileprovision`, `Share.mobileprovision`, `Widget.mobileprovision`, …).
+   Их `application-identifier` должен начинаться с `TEAM_ID.BUNDLE_ID`.
+2. В `build-system/grit-configuration.json` поставьте свой `team_id`, `bundle_id`,
+   `api_id` и `api_hash`.
+3. В workflow замените `--configuration=debug_sim_arm64` на `--configuration=release_arm64`
+   и добавьте сборку IPA — шаблон есть в старом `.github/workflows/build.yml` апстрима.
+
+ТакТак вы сможете поставить свой bundle id без ошибки `aps-environment`.
 
 ## Важно про api_id
 
