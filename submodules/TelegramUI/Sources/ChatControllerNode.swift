@@ -231,6 +231,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     let contentDimNode: ASDisplayNode
     let backgroundNode: WallpaperBackgroundNode
     let gritScanlineNode: ASDisplayNode
+    private var gritScanlineObserver: NSObjectProtocol?
     var historyNode: ChatHistoryListNodeImpl
     var blurredHistoryNode: ASImageNode?
     let historyNodeContainer: HistoryNodeContainer
@@ -517,6 +518,10 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         self.gritScanlineNode.isUserInteractionEnabled = false
         self.gritScanlineNode.backgroundColor = gritScanlinePatternImage().flatMap { UIColor(patternImage: $0) }
         self.gritScanlineNode.alpha = 0.9
+        self.gritScanlineNode.isHidden = !GritSettings.crtEnabled
+        self.gritScanlineObserver = NotificationCenter.default.addObserver(forName: GritSettings.changedNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.gritScanlineNode.isHidden = !GritSettings.crtEnabled
+        }
         if case .standard(.embedded) = chatPresentationInterfaceState.mode {
             // A history embedded in a profile pane (Saved): the wallpaper is decoration there. The chat screen itself is
             // left as it is (its own pass).
@@ -1109,6 +1114,9 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     }
     
     deinit {
+        if let observer = self.gritScanlineObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
         self.interactiveEmojisDisposable?.dispose()
         self.openStickersDisposable?.dispose()
         self.displayVideoUnmuteTipDisposable?.dispose()

@@ -19,6 +19,7 @@ enum SettingsSection: Int, CaseIterable {
     case phone
     case accounts
     case myProfile
+    case grit
     case wallet
     case proxy
     case apps
@@ -251,7 +252,32 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 4, text: presentationData.strings.Settings_ChatFolders, icon: PresentationResourcesSettings.chatFolders, action: {
         interaction.openSettings(.chatFolders)
     }))
-    
+
+    // GRIT: a visible section right on the main Settings screen. Everything is
+    // local and switches take effect immediately (theme changes need a relaunch).
+    func gritSwitch(id: AnyHashable, text: String, feature: GritFeature, icon: UIImage?) -> PeerInfoScreenItem {
+        return PeerInfoScreenSwitchItem(id: id, text: text, value: GritSettings.isEnabled(feature), icon: icon, toggled: { value in
+            GritSettings.setEnabled(value, for: feature)
+            interaction.requestLayout(false)
+        })
+    }
+
+    let gritProgress = GritProgress.registerOpen()
+    items[.grit]!.append(PeerInfoScreenDisclosureItem(id: 0, label: .text("DAY \(gritProgress.streak) · \(gritProgress.codes) CODES"), text: "GRIT // ACID / VOID", icon: PresentationResourcesSettings.appearance, action: {
+        interaction.openSettings(.appearance)
+    }))
+    items[.grit]!.append(gritSwitch(id: 1, text: "GRIT CRT", feature: .crt, icon: PresentationResourcesSettings.appearance))
+    items[.grit]!.append(gritSwitch(id: 2, text: "GRIT PULSE", feature: .pulse, icon: PresentationResourcesSettings.appearance))
+    items[.grit]!.append(gritSwitch(id: 3, text: "GRIT SOUND", feature: .sound, icon: PresentationResourcesSettings.notifications))
+    items[.grit]!.append(PeerInfoScreenSwitchItem(id: 4, text: "GRIT GLITCH / THUMP", value: GritSettings.glitchEnabled, icon: PresentationResourcesSettings.dataAndStorage, toggled: { value in
+        GritSettings.setEnabled(value, for: .glitch)
+        GritSettings.setEnabled(value, for: .thump)
+        interaction.requestLayout(false)
+    }))
+    items[.grit]!.append(gritSwitch(id: 5, text: "GRIT SECRET CODE", feature: .secret, icon: PresentationResourcesSettings.security))
+    items[.grit]!.append(gritSwitch(id: 6, text: "GRIT SHIELD", feature: .antiScreenshot, icon: PresentationResourcesSettings.security))
+    items[.grit]!.append(gritSwitch(id: 7, text: "GRIT STREAK", feature: .streak, icon: PresentationResourcesSettings.appearance))
+
     let notificationsWarning: Bool
     if let settings = data.globalSettings {
         notificationsWarning = shouldDisplayNotificationsPermissionWarning(status: settings.notificationAuthorizationStatus, suppressed:  settings.notificationWarningSuppressed)

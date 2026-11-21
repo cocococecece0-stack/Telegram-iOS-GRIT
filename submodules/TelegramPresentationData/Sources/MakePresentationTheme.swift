@@ -54,6 +54,9 @@ public func makeDefaultPresentationTheme(reference: PresentationBuiltinThemeRefe
 // GRIT PULSE: GRIT presets carry at least three bubble colors, so let them
 // animate wherever the theme is built without an explicit toggle.
 private func gritShouldAnimateBubbles(_ colors: [UInt32]) -> Bool {
+    guard GritSettings.pulseEnabled else {
+        return false
+    }
     return colors.count >= 3 && colors.contains { color in
         let rgb = color & 0x00ffffff
         return rgb == 0x9eff00 || rgb == 0xb388ff

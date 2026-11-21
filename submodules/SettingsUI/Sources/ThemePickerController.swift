@@ -212,6 +212,14 @@ private enum ThemePickerControllerEntry: ItemListNodeEntry {
                         for preset in nightColorPresets {
                             colorItems.append(.preset(preset))
                         }
+                    } else {
+                        // GRIT: Night Accent and other built-in themes previously showed no
+                        // GRIT presets at all. Always offer the mod palettes.
+                        colorItems.append(.color(.blue))
+                        colors = colors.filter { $0 != .blue }
+                        for preset in nightColorPresets where preset.index >= 108 {
+                            colorItems.append(.preset(preset))
+                        }
                     }
                     if name != .day {
                         colors = colors.filter { $0 != .black }

@@ -1,0 +1,153 @@
+import Foundation
+import UIKit
+import SwiftSignalKit
+import ScreenCaptureDetection
+import TelegramPresentationData
+
+/// GRIT SHIELD: local privacy layer.
+/// - On a screenshot: flashes an acid warning over the whole app.
+/// - On screen recording: masks the window with an opaque GRIT panel while recording is active.
+public final class GritShield {
+    private weak var window: UIWindow?
+    private var disposable: Disposable?
+    private var screenshotOverlay: UIView?
+    private var recordingOverlay: UIView?
+    private var hideTimer: SwiftSignalKit.Timer?
+    private var recordingCheckTimer: SwiftSignalKit.Timer?
+
+    public init(window: UIWindow) {
+        self.window = window
+    }
+
+    public func start() {
+        guard self.disposable == nil else {
+            return
+        }
+        self.disposable = (screenCaptureEvents() |> deliverOnMainQueue).start(next: { [weak self] event in
+            guard let self else {
+                return
+            }
+            switch event {
+            case .still:
+                if GritSettings.antiScreenshotEnabled {
+                    self.flashScreenshotWarning()
+                }
+            case .video:
+                if GritSettings.antiScreenshotEnabled {
+                    self.updateRecordingOverlay()
+                }
+            }
+        })
+
+        self.recordingCheckTimer = SwiftSignalKit.Timer(timeout: 0.5, repeat: true, completion: { [weak self] in
+            Queue.mainQueue().async {
+                self?.updateRecordingOverlay()
+            }
+        }, queue: Queue.mainQueue())
+        self.recordingCheckTimer?.start()
+    }
+
+    private func updateRecordingOverlay() {
+        guard let window = self.window else {
+            return
+        }
+        let recording = UIScreen.main.isCaptured && GritSettings.antiScreenshotEnabled
+        if recording {
+            if self.recordingOverlay == nil {
+                let overlay = UIView(frame: window.bounds)
+                overlay.backgroundColor = UIColor.black
+                overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                overlay.isUserInteractionEnabled = false
+                overlay.layer.zPosition = 10000
+
+                let grid = UIView(frame: overlay.bounds)
+                grid.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                grid.backgroundColor = UIColor(patternImage: gritShieldPattern())
+                grid.alpha = 0.35
+                overlay.addSubview(grid)
+
+                let label = UILabel(frame: overlay.bounds.insetBy(dx: 24.0, dy: 24.0))
+                label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                label.text = "GRIT // SHIELD\nRECORDING BLOCKED"
+                label.textColor = UIColor(red: 0.62, green: 1.0, blue: 0.0, alpha: 1.0)
+                label.font = UIFont.systemFont(ofSize: 26.0, weight: .bold)
+                label.numberOfLines = 2
+                label.textAlignment = .center
+                overlay.addSubview(label)
+
+                window.addSubview(overlay)
+                self.recordingOverlay = overlay
+            }
+        } else if let overlay = self.recordingOverlay {
+            overlay.removeFromSuperview()
+            self.recordingOverlay = nil
+        }
+    }
+
+    private func flashScreenshotWarning() {
+        guard let window = self.window, self.screenshotOverlay == nil else {
+            return
+        }
+        let overlay = UIView(frame: window.bounds)
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.94)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.isUserInteractionEnabled = false
+        overlay.layer.zPosition = 10001
+        overlay.alpha = 0.0
+
+        let label = UILabel(frame: overlay.bounds.insetBy(dx: 24.0, dy: 24.0))
+        label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        label.text = "GRIT // SHIELD\nSCREENSHOT DETECTED"
+        label.textColor = UIColor(red: 0.62, green: 1.0, blue: 0.0, alpha: 1.0)
+        label.font = UIFont.systemFont(ofSize: 24.0, weight: .bold)
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        overlay.addSubview(label)
+
+        window.addSubview(overlay)
+        self.screenshotOverlay = overlay
+        UIView.animate(withDuration: 0.12, animations: {
+            overlay.alpha = 1.0
+        }, completion: { [weak self] _ in
+            self?.hideTimer?.invalidate()
+            let timer = SwiftSignalKit.Timer(timeout: 1.5, repeat: false, completion: { [weak self] in
+                Queue.mainQueue().async {
+                    guard let self else {
+                        return
+                    }
+                    UIView.animate(withDuration: 0.2, animations: {
+                        overlay.alpha = 0.0
+                    }, completion: { _ in
+                        overlay.removeFromSuperview()
+                        if self.screenshotOverlay === overlay {
+                            self.screenshotOverlay = nil
+                        }
+                    })
+                }
+            }, queue: Queue.mainQueue())
+            self?.hideTimer = timer
+            timer.start()
+        })
+    }
+
+    deinit {
+        self.disposable?.dispose()
+        self.hideTimer?.invalidate()
+        self.recordingCheckTimer?.invalidate()
+        self.screenshotOverlay?.removeFromSuperview()
+        self.recordingOverlay?.removeFromSuperview()
+    }
+}
+
+private func gritShieldPattern() -> UIImage {
+    let size = CGSize(width: 8.0, height: 8.0)
+    UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+    UIColor.clear.setFill()
+    UIRectFill(CGRect(origin: .zero, size: size))
+    UIColor(red: 0.62, green: 1.0, blue: 0.0, alpha: 0.35).setFill()
+    UIRectFill(CGRect(x: 0.0, y: 0.0, width: 1.0, height: size.height))
+    UIRectFill(CGRect(x: 0.0, y: 0.0, width: size.width, height: 1.0))
+    let image = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
+    UIGraphicsEndImageContext()
+    return image
+}

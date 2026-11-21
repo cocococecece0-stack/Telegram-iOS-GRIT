@@ -243,6 +243,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     private var statusBarHost: ApplicationStatusBarHost?
     private var dataImportSplash: LegacyDataImportSplash?
     private var memoryUsageOverlayView: UILabel?
+    private var gritShield: GritShield?
     
     private let crashReportPromptDisposable = MetaDisposable()
     private var buildConfig: BuildConfig?
@@ -445,7 +446,15 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         }
         self.window = window
         self.nativeWindow = window
-        
+
+        // GRIT SHIELD: local anti-screenshot / anti-recording layer.
+        self.gritShield = GritShield(window: window)
+        self.gritShield?.start()
+
+        // GRIT STREAK: register the day once per launch so the counter works
+        // even when the auth splash is skipped on an existing account.
+        let _ = GritProgress.registerOpen()
+
         hostView.containerView.layer.addSublayer(MetalEngine.shared.rootLayer)
         // On the first start after an update, compile the pipelines that would otherwise stall their first use.
         if MetalEngine.shared.pipelineCache.isFresh {

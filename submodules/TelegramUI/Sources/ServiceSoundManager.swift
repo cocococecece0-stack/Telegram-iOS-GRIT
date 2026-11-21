@@ -2,6 +2,7 @@ import Foundation
 import SwiftSignalKit
 import AudioToolbox
 import AppBundle
+import TelegramPresentationData
 
 private func loadSystemSoundFromBundle(name: String) -> SystemSoundID? {
     let path = "\(getAppBundle().resourcePath!)/\(name)"
@@ -29,6 +30,9 @@ public final class ServiceSoundManager {
     }
     
     public func playMessageDeliveredSound() {
+        guard GritSettings.soundEnabled else {
+            return
+        }
         self.queue.async {
             if let messageDeliverySound = self.messageDeliverySound {
                 AudioServicesPlaySystemSound(messageDeliverySound)
@@ -37,6 +41,9 @@ public final class ServiceSoundManager {
     }
     
     public func playIncomingMessageSound() {
+        guard GritSettings.soundEnabled else {
+            return
+        }
         self.queue.async {
             if let incomingMessageSound = self.incomingMessageSound {
                 AudioServicesPlaySystemSound(incomingMessageSound)
@@ -45,6 +52,9 @@ public final class ServiceSoundManager {
     }
     
     public func playGritCodeSound() {
+        guard GritSettings.soundEnabled else {
+            return
+        }
         self.queue.async {
             if let gritCodeSound = self.gritCodeSound {
                 AudioServicesPlaySystemSound(gritCodeSound)

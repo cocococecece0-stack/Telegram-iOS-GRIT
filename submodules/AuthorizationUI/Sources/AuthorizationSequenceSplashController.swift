@@ -81,9 +81,9 @@ public final class AuthorizationSequenceSplashController: ViewController {
         }
 
         let grit = GritProgress.registerOpen()
-        let gritTitle = grit.codes > 0
+        let gritTitle = GritSettings.streakEnabled ? (grit.codes > 0
             ? "ENTER THE GRIT · DAY \(grit.streak) · CODES \(grit.codes)"
-            : "ENTER THE GRIT · DAY \(grit.streak)"
+            : "ENTER THE GRIT · DAY \(grit.streak)") : "ENTER THE GRIT"
         self.startButton = SolidRoundedButtonNode(title: gritTitle, theme: SolidRoundedButtonTheme(theme: theme), glass: false, height: 50.0, cornerRadius: 50.0 * 0.5, isShimmering: true)
         self.startButton.accessibilityIdentifier = "Auth.Welcome.StartButton"
 
@@ -106,7 +106,9 @@ public final class AuthorizationSequenceSplashController: ViewController {
         
         self.startButton.pressed = { [weak self] in
             // GRIT THUMP: a short, heavy tap when entering the grit.
-            self?.hapticFeedback.impact(.heavy)
+            if GritSettings.thumpEnabled {
+                self?.hapticFeedback.impact(.heavy)
+            }
             self?.activateLocalization("en")
         }
         
@@ -191,10 +193,12 @@ public final class AuthorizationSequenceSplashController: ViewController {
         controller.viewDidAppear(animated)
 
         // GRIT GLITCH: short uneven snap when the entry point appears.
-        self.startButton.view.transform = CGAffineTransform(translationX: -4.0, y: 1.0)
-        UIView.animate(withDuration: 0.34, delay: 0.0, usingSpringWithDamping: 0.22, initialSpringVelocity: 0.9, options: [], animations: {
-            self.startButton.view.transform = .identity
-        })
+        if GritSettings.glitchEnabled {
+            self.startButton.view.transform = CGAffineTransform(translationX: -4.0, y: 1.0)
+            UIView.animate(withDuration: 0.34, delay: 0.0, usingSpringWithDamping: 0.22, initialSpringVelocity: 0.9, options: [], animations: {
+                self.startButton.view.transform = .identity
+            })
+        }
     }
     
     public override func viewWillDisappear(_ animated: Bool) {

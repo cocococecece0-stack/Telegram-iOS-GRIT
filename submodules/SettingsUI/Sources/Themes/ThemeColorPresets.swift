@@ -27,7 +27,13 @@ var dayClassicColorPresets: [PresentationThemeAccentColor] = [
     PresentationThemeAccentColor(index: 103, baseColor: .preset, accentColor: 0xFF199972, bubbleColors: [0xFFFFFEC7], wallpaper: patternWallpaper(data: .variant3, colors: [0xdceb92, 0x8fe1d6, 0x67a3f2, 0x85d685], intensity: 50, rotation: nil)),
 
     // Pink with Green
-    PresentationThemeAccentColor(index: 105, baseColor: .preset, accentColor: 0xFFDA90D9, bubbleColors: [0xFF94FFF9, 0xFFCCFFC7], wallpaper: patternWallpaper(data: .variant9, colors: [0xffc3b2, 0xe2c0ff, 0xffe7b2], intensity: 50, rotation: nil))
+    PresentationThemeAccentColor(index: 105, baseColor: .preset, accentColor: 0xFFDA90D9, bubbleColors: [0xFF94FFF9, 0xFFCCFFC7], wallpaper: patternWallpaper(data: .variant9, colors: [0xffc3b2, 0xe2c0ff, 0xffe7b2], intensity: 50, rotation: nil)),
+
+    // GRIT ACID (classic day) — доступен сразу, без переключения базовой темы
+    PresentationThemeAccentColor(index: 108, baseColor: .preset, accentColor: 0xFF14A33C, bubbleColors: [0xFFD6FFCF, 0xFF14A33C], wallpaper: patternWallpaper(data: .variant3, colors: [0x0e1a0e, 0x1b2b12, 0x050a05, 0x0a1206], intensity: -25, rotation: nil)),
+
+    // GRIT VOID (classic day)
+    PresentationThemeAccentColor(index: 109, baseColor: .preset, accentColor: 0xFF7A1FFF, bubbleColors: [0xFFE8DEFF, 0xFF7A1FFF], wallpaper: patternWallpaper(data: .variant6, colors: [0x0e0716, 0x1a0f2b, 0x050308, 0x080510], intensity: -25, rotation: nil))
 ]
 
 var dayColorPresets: [PresentationThemeAccentColor] = [

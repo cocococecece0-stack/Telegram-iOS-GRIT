@@ -4301,7 +4301,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         }
 
         // GRIT SECRET: type "grit" or "ENTER THE GRIT" in any chat.
-        if self.gritCodeArmed, let interfaceInteraction = self.interfaceInteraction {
+        if GritSettings.secretEnabled, self.gritCodeArmed, let interfaceInteraction = self.interfaceInteraction {
             let typed = self.inputTextState.inputText.string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             if typed == "grit" || typed == "enter the grit" {
                 self.gritCodeArmed = false
