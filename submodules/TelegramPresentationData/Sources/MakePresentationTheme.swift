@@ -51,17 +51,26 @@ public func makeDefaultPresentationTheme(reference: PresentationBuiltinThemeRefe
     return theme
 }
 
+// GRIT PULSE: GRIT presets carry at least three bubble colors, so let them
+// animate wherever the theme is built without an explicit toggle.
+private func gritShouldAnimateBubbles(_ colors: [UInt32]) -> Bool {
+    return colors.count >= 3 && colors.contains { color in
+        let rgb = color & 0x00ffffff
+        return rgb == 0x9eff00 || rgb == 0xb388ff
+    }
+}
+
 public func customizePresentationTheme(_ theme: PresentationTheme, editing: Bool, title: String? = nil, accentColor: UIColor?, outgoingAccentColor: UIColor?, backgroundColors: [UInt32], bubbleColors: [UInt32], animateBubbleColors: Bool?, wallpaper: TelegramWallpaper? = nil, baseColor: PresentationThemeBaseColor? = nil) -> PresentationTheme {
     if accentColor == nil && bubbleColors.isEmpty && backgroundColors.isEmpty && wallpaper == nil {
         return theme
     }
     switch theme.referenceTheme {
         case .day, .dayClassic, .neutral:
-            return customizeDefaultDayTheme(theme: theme, editing: editing, title: title, accentColor: accentColor, outgoingAccentColor: outgoingAccentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, animateBubbleColors: animateBubbleColors ?? false, wallpaper: wallpaper, serviceBackgroundColor: nil)
+            return customizeDefaultDayTheme(theme: theme, editing: editing, title: title, accentColor: accentColor, outgoingAccentColor: outgoingAccentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, animateBubbleColors: animateBubbleColors ?? gritShouldAnimateBubbles(bubbleColors), wallpaper: wallpaper, serviceBackgroundColor: nil)
         case .night, .neutralNight:
-            return customizeDefaultDarkPresentationTheme(theme: theme, editing: editing, title: title, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, animateBubbleColors: animateBubbleColors ?? false, wallpaper: wallpaper, baseColor: baseColor)
+            return customizeDefaultDarkPresentationTheme(theme: theme, editing: editing, title: title, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, animateBubbleColors: animateBubbleColors ?? gritShouldAnimateBubbles(bubbleColors), wallpaper: wallpaper, baseColor: baseColor)
         case .nightAccent:
-            return customizeDefaultDarkTintedPresentationTheme(theme: theme, editing: editing, title: title, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, animateBubbleColors: animateBubbleColors ?? false, wallpaper: wallpaper, baseColor: baseColor)
+            return customizeDefaultDarkTintedPresentationTheme(theme: theme, editing: editing, title: title, accentColor: accentColor, backgroundColors: backgroundColors, bubbleColors: bubbleColors, animateBubbleColors: animateBubbleColors ?? gritShouldAnimateBubbles(bubbleColors), wallpaper: wallpaper, baseColor: baseColor)
     }
 }
 

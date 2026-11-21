@@ -17,11 +17,14 @@ public final class ServiceSoundManager {
     private let queue = Queue()
     private var messageDeliverySound: SystemSoundID?
     private var incomingMessageSound: SystemSoundID?
+    private var gritCodeSound: SystemSoundID?
     
     init() {
         self.queue.async {
-            self.messageDeliverySound = loadSystemSoundFromBundle(name: "MessageSent.mp3")
-            self.incomingMessageSound = loadSystemSoundFromBundle(name: "notification.mp3")
+            // GRIT SOUND: own distorted thud and two-hit clank.
+            self.messageDeliverySound = loadSystemSoundFromBundle(name: "grit_send.mp3")
+            self.incomingMessageSound = loadSystemSoundFromBundle(name: "grit_notify.mp3")
+            self.gritCodeSound = loadSystemSoundFromBundle(name: "grit_notify.mp3")
         }
     }
     
@@ -41,6 +44,14 @@ public final class ServiceSoundManager {
         }
     }
     
+    public func playGritCodeSound() {
+        self.queue.async {
+            if let gritCodeSound = self.gritCodeSound {
+                AudioServicesPlaySystemSound(gritCodeSound)
+            }
+        }
+    }
+
     public func playVibrationSound() {
         self.queue.async {
             AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)

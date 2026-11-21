@@ -403,6 +403,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
     
     public var ignoreInputStateUpdates: Bool = false
     private var ignoreChatInputTextNodeDidUpdateText: Bool = false
+    private var gritCodeArmed = true
     
     override public var context: AccountContext? {
         didSet {
@@ -4298,6 +4299,26 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         if self.ignoreChatInputTextNodeDidUpdateText {
             return
         }
+
+        // GRIT SECRET: type "grit" or "ENTER THE GRIT" in any chat.
+        if self.gritCodeArmed, let interfaceInteraction = self.interfaceInteraction {
+            let typed = self.inputTextState.inputText.string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if typed == "grit" || typed == "enter the grit" {
+                self.gritCodeArmed = false
+                let _ = GritProgress.noteCode()
+                self.hapticFeedback.impact(.rigid)
+                self.ignoreChatInputTextNodeDidUpdateText = true
+                interfaceInteraction.updateTextInputStateAndMode({ _, inputMode in
+                    return (ChatTextInputState(), inputMode)
+                })
+                self.ignoreChatInputTextNodeDidUpdateText = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    self?.gritCodeArmed = true
+                }
+                return
+            }
+        }
+
         if let richTextInputNode = self.richTextInputNode, let presentationInterfaceState = self.presentationInterfaceState, let context = self.context {
             let baseFontSize = chatTextInputBaseFontSize(for: presentationInterfaceState.fontSize)
             let fullTranslucency = self.context?.sharedContext.energyUsageSettings.fullTranslucency ?? true

@@ -80,6 +80,17 @@ import ChatHistoryListViewBackend
 import MessageWidget
 import TabBarLayout
 
+// GRIT CRT: a 1x4 tile drawn behind messages, never above text or controls.
+private func gritScanlinePatternImage() -> UIImage? {
+    let size = CGSize(width: 1.0, height: 4.0)
+    return UIGraphicsImageRenderer(size: size).image { context in
+        UIColor(white: 0.0, alpha: 0.26).setFill()
+        context.fill(CGRect(x: 0.0, y: 0.0, width: 1.0, height: 1.0))
+        UIColor(white: 1.0, alpha: 0.035).setFill()
+        context.fill(CGRect(x: 0.0, y: 2.0, width: 1.0, height: 1.0))
+    }
+}
+
 final class VideoNavigationControllerDropContentItem: NavigationControllerDropContentItem {
     let itemNode: OverlayMediaItemNode
     
@@ -219,6 +230,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     let contentContainerNode: ChatNodeContainer
     let contentDimNode: ASDisplayNode
     let backgroundNode: WallpaperBackgroundNode
+    let gritScanlineNode: ASDisplayNode
     var historyNode: ChatHistoryListNodeImpl
     var blurredHistoryNode: ASImageNode?
     let historyNodeContainer: HistoryNodeContainer
@@ -501,6 +513,10 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         self.controller = controller
         
         self.backgroundNode = backgroundNode
+        self.gritScanlineNode = ASDisplayNode()
+        self.gritScanlineNode.isUserInteractionEnabled = false
+        self.gritScanlineNode.backgroundColor = gritScanlinePatternImage().flatMap { UIColor(patternImage: $0) }
+        self.gritScanlineNode.opacity = 0.9
         if case .standard(.embedded) = chatPresentationInterfaceState.mode {
             // A history embedded in a profile pane (Saved): the wallpaper is decoration there. The chat screen itself is
             // left as it is (its own pass).
@@ -930,6 +946,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         // UIKit's own order here until the chat screen gets its own VoiceOver pass.
         self.contentContainerNode.accessibilityUsesViewElements = true
         self.contentContainerNode.contentNode.addSubnode(self.backgroundNode)
+        self.contentContainerNode.contentNode.addSubnode(self.gritScanlineNode)
         self.contentContainerNode.contentNode.addSubnode(self.historyNodeContainer)
         
         self.contentContainerNode.contentNode.addSubnode(self.messageTransitionNode)
@@ -1449,6 +1466,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
                 containerNode.clipsToBounds = true
                 containerNode.cornerRadius = 26.0
                 containerNode.addSubnode(self.backgroundNode)
+                containerNode.addSubnode(self.gritScanlineNode)
                 containerNode.addSubnode(self.historyNodeContainer)
                 self.contentContainerNode.isHidden = true
                 if let restrictedNode = self.restrictedNode {
@@ -1488,7 +1506,8 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
                 self.containerNode = nil
                 containerNode.removeFromSupernode()
                 self.contentContainerNode.contentNode.insertSubnode(self.backgroundNode, at: 0)
-                self.contentContainerNode.contentNode.insertSubnode(self.historyNodeContainer, aboveSubnode: self.backgroundNode)
+                self.contentContainerNode.contentNode.insertSubnode(self.gritScanlineNode, aboveSubnode: self.backgroundNode)
+                self.contentContainerNode.contentNode.insertSubnode(self.historyNodeContainer, aboveSubnode: self.gritScanlineNode)
                 if let restrictedNode = self.restrictedNode {
                     self.contentContainerNode.contentNode.insertSubnode(restrictedNode, aboveSubnode: self.historyNodeContainer)
                 }
@@ -2216,6 +2235,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         let wallpaperBounds = CGRect(x: 0.0, y: 0.0, width: layout.size.width - wrappingInsets.left - wrappingInsets.right, height: layout.size.height)
         
         transition.updateFrame(node: self.backgroundNode, frame: wallpaperBounds)
+        transition.updateFrame(node: self.gritScanlineNode, frame: wallpaperBounds)
         
         var displayMode: WallpaperDisplayMode = .aspectFill
         if case .regular = layout.metrics.widthClass, let windowSize = layout.metrics.windowSize, windowSize.width > windowSize.height, layout.size.height == windowSize.height {
