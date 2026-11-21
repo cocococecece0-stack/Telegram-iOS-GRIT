@@ -52,7 +52,7 @@ jobs:
             build \
             --configurationPath=build-system/grit-configuration.json \
             --codesigningInformationPath=build-system/fake-codesigning \
-            --configuration=release_arm64 \
+            --configuration=debug_arm64 \
             --buildNumber="$BUILD_NUMBER"
 
           IPA=bazel-bin/Telegram/Telegram.ipa
