@@ -519,9 +519,6 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         self.gritScanlineNode.backgroundColor = gritScanlinePatternImage().flatMap { UIColor(patternImage: $0) }
         self.gritScanlineNode.alpha = 0.9
         self.gritScanlineNode.isHidden = !GritSettings.crtEnabled
-        self.gritScanlineObserver = NotificationCenter.default.addObserver(forName: GritSettings.changedNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.gritScanlineNode.isHidden = !GritSettings.crtEnabled
-        }
         if case .standard(.embedded) = chatPresentationInterfaceState.mode {
             // A history embedded in a profile pane (Saved): the wallpaper is decoration there. The chat screen itself is
             // left as it is (its own pass).
@@ -879,6 +876,10 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         self.navigateButtons.accessibilityElementsHidden = true
         
         super.init()
+
+        self.gritScanlineObserver = NotificationCenter.default.addObserver(forName: GritSettings.changedNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.gritScanlineNode.isHidden = !GritSettings.crtEnabled
+        }
 
         getContentAreaInScreenSpaceImpl = { [weak self] in
             guard let strongSelf = self else {
