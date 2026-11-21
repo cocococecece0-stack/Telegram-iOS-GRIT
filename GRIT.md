@@ -88,7 +88,16 @@ Bundle id задаётся переменной `GRIT_BUNDLE_ID` (по умол�
 Workflow импортирует сертификат во временный keychain, собирает `release_arm64` и
 кладет подписанный `GRIT-TG-signed.ipa` в артефакты. Расширения (Share/Widget/…) в
 этой сборке отключены через `GRIT_DISABLE_EXTENSIONS=1`: достаточно одного профиля
-на основное приложение.
+на основное приложение. Это **не сайдлоад**: IPA уже подписан твоим сертификатом и
+устанавливается через Xcode Devices, Apple Configurator, MDM или напрямую как обычный
+ад-hoc/distribution билд.
+
+Если сертификат нужно наложить самому (свой Mac или другой сервис подписи), есть отдельный
+workflow `.github/workflows/device-ipa.yml` (Actions → **GRIT device IPA** → Run workflow).
+Он собирает `release_arm64` без просроченных встроенных provisioning-профилей
+(`GRIT_DISABLE_PROVISIONING=1`) и выдает `GRIT-TG-device-unsigned.ipa`, который можно
+переподписать своим P12 локально. Симуляторный `.app` из `grit-build.yml` на реальный
+айфон не ставится — для устройства нужен именно device IPA из одного из этих двух workflow.
 
 ## Важно про api_id
 

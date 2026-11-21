@@ -635,6 +635,11 @@ def build(bazel, arguments):
         bazel_command_line.disable_extensions = True
         bazel_command_line.disable_provisioning_profiles = False
 
+    # GRIT: produce a device IPA that can be re-signed with a personal certificate
+    # (or installed directly after signing) without the expired bundled profiles.
+    if os.getenv('GRIT_DISABLE_PROVISIONING') == '1':
+        bazel_command_line.disable_provisioning_profiles = True
+
     if arguments.lock:
         bazel_command_line.set_lock(True)
 
