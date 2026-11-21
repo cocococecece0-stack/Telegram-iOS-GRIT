@@ -39,12 +39,15 @@ jobs:
       - name: Build device IPA
         working-directory: /Users/Shared/telegram-ios
         env:
-          GRIT_DISABLE_PROVISIONING: '1'
           GRIT_DISABLE_EXTENSIONS: '1'
         run: |
           set -euxo pipefail
           BUILD_NUMBER=$(( $(git rev-list --count HEAD) + $(cat build_number_offset) ))
           python3 build-system/Make/ImportCertificates.py --path build-system/fake-codesigning/certs
+          # Sanity-check the fresh profile before building.
+          openssl smime -inform der -verify -noverify \
+            -in build-system/fake-codesigning/profiles/Telegram.mobileprovision \
+            | grep -q 'org.grit.telegram'
           python3 -u build-system/Make/Make.py \
             --bazelUserRoot=/private/var/tmp/_bazel_containerhost \
             --cacheDir="$HOME/telegram-bazel-cache" \
