@@ -75,8 +75,12 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
-          IPA=$(find bazel-bin -type f -name 'Telegram.ipa' -print -quit)
-          test -n "$IPA"
+          # bazel-bin is a symlink; use the known output path and a -L fallback.
+          IPA=bazel-bin/Telegram/Telegram.ipa
+          if [ ! -e "$IPA" ]; then
+            IPA=$(find -L bazel-bin -name 'Telegram.ipa' -print -quit || true)
+          fi
+          test -n "$IPA" && test -e "$IPA"
           cp "$IPA" "$GITHUB_WORKSPACE/artifacts/GRIT-TG-simulator.ipa"
 
           # Simulator IPA is a zip; also expose the raw .app when possible.

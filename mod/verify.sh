@@ -26,6 +26,7 @@ check build-system/Make/Make.py 'bazel_command_line.disable_provisioning_profile
 check build-system/Make/Make.py "os.getenv('GRIT_DISABLE_EXTENSIONS') == '1'"
 check .github/workflows/signed-build.yml 'GRIT_P12_BASE64'
 check .github/workflows/grit-build.yml 'GRIT-TG-simulator.ipa'
+check .github/workflows/grit-build.yml 'find -L bazel-bin'
 check submodules/TelegramUIPreferences/Sources/PresentationThemeSettings.swift 'theme: .builtin(.night)'
 check submodules/SettingsUI/Sources/Themes/ThemeColorPresets.swift 'GRIT ACID (night)'
 check submodules/SettingsUI/Sources/Themes/ThemeSettingsAppIconItem.swift 'name = "GRIT ACID"'
