@@ -58,20 +58,30 @@ python3 -u build-system/Make/Make.py \
   --buildNumber=1
 ```
 
-## Свой сертификат
+## Свой сертификат — подписанный IPA
 
-Если есть свой P12 + provisioning profile — можно собрать по-настоящему подписанный билд:
+Да, подписать можно. Для этого есть отдельный workflow
+`.github/workflows/signed-build.yml` (Actions → **GRIT signed IPA → Run workflow**).
 
-1. Положите свои `.p12` в `build-system/fake-codesigning/certs/` и профили в
-   `build-system/fake-codesigning/profiles/` с именами из `profile_name_mapping`
-   (`Telegram.mobileprovision`, `Share.mobileprovision`, `Widget.mobileprovision`, …).
-   Их `application-identifier` должен начинаться с `TEAM_ID.BUNDLE_ID`.
-2. В `build-system/grit-configuration.json` поставьте свой `team_id`, `bundle_id`,
-   `api_id` и `api_hash`.
-3. В workflow замените `--configuration=debug_sim_arm64` на `--configuration=release_arm64`
-   и добавьте сборку IPA — шаблон есть в старом `.github/workflows/build.yml` апстрима.
+Залейте в GitHub Secrets (Settings → Secrets and variables → Actions):
 
-ТакТак вы сможете поставить свой bundle id без ошибки `aps-environment`.
+| Secret | Что |
+|---|---|
+| `GRIT_P12_BASE64` | ваш `.p12`, `base64 -i cert.p12 -o -` |
+| `GRIT_P12_PASSWORD` | пароль от p12 |
+| `GRIT_PROFILE_BASE64` | provisioning profile основного приложения, base64 |
+| `GRIT_TEAM_ID` | ваш Apple Team ID |
+| `GRIT_API_ID` / `GRIT_API_HASH` | свои креды Telegram API |
+| `GRIT_KEYCHAIN_PASSWORD` | *(опционально)* пароль временного keychain |
+
+Bundle id задаётся переменной `GRIT_BUNDLE_ID` (по умолчанию `org.grit.telegram`).
+Профиль должен иметь `application-identifier` вида `TEAM_ID.<bundle_id>` и содержать
+`aps-environment`, иначе Make.py остановится с понятным сообщением.
+
+Workflow импортирует сертификат во временный keychain, собирает `release_arm64` и
+кладет подписанный `GRIT-TG-signed.ipa` в артефакты. Расширения (Share/Widget/…) в
+этой сборке отключены через `GRIT_DISABLE_EXTENSIONS=1`: достаточно одного профиля
+на основное приложение.
 
 ## Важно про api_id
 

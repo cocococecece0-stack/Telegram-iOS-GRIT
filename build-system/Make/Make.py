@@ -48,6 +48,7 @@ class BazelCommandLine:
         self.show_actions = False
         self.enable_sandbox = False
         self.disable_provisioning_profiles = False
+        self.disable_extensions = False
         self.profile_swift = False
         self.embed_watch_app = False
         self.watch_api_id = None
@@ -303,6 +304,8 @@ class BazelCommandLine:
 
         if self.disable_provisioning_profiles:
             combined_arguments += ['--//Telegram:disableProvisioningProfiles']
+        if self.disable_extensions:
+            combined_arguments += ['--//Telegram:disableExtensions']
 
         combined_arguments += self.common_args
         combined_arguments += self.common_build_args
@@ -625,6 +628,12 @@ def build(bazel, arguments):
     # fake profiles expire, so disable them and let Bazel build unsigned.
     if arguments.configuration in ('debug_sim_arm64', 'release_sim_arm64'):
         bazel_command_line.disable_provisioning_profiles = True
+
+    # GRIT: with a personal signing certificate we usually only have the main
+    # app profile. Set GRIT_DISABLE_EXTENSIONS=1 to drop extensions from the build.
+    if os.getenv('GRIT_DISABLE_EXTENSIONS') == '1':
+        bazel_command_line.disable_extensions = True
+        bazel_command_line.disable_provisioning_profiles = False
 
     if arguments.lock:
         bazel_command_line.set_lock(True)

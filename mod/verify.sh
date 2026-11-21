@@ -23,6 +23,8 @@ check submodules/AuthorizationUI/Sources/AuthorizationSequenceSplashController.s
 check build-system/grit-configuration.json '"bundle_id": "org.grit.telegram"'
 check build-system/grit-configuration.json '"app_specific_url_scheme": "grit"'
 check build-system/Make/Make.py 'bazel_command_line.disable_provisioning_profiles = True'
+check build-system/Make/Make.py "os.getenv('GRIT_DISABLE_EXTENSIONS') == '1'"
+check .github/workflows/signed-build.yml 'GRIT_P12_BASE64'
 check submodules/TelegramUIPreferences/Sources/PresentationThemeSettings.swift 'theme: .builtin(.night)'
 check submodules/SettingsUI/Sources/Themes/ThemeColorPresets.swift 'GRIT ACID (night)'
 check submodules/SettingsUI/Sources/Themes/ThemeSettingsAppIconItem.swift 'name = "GRIT ACID"'
