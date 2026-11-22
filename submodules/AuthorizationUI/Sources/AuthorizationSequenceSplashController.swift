@@ -218,7 +218,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
                         self.gritGlitchTimer = nil
                         self.startButton.title = finalTitle
                     }
-                    let _ = self.startButton.updateLayout(width: max(self.startButton.frame.width, 240.0))
+                    // Setting `title` already triggers SolidRoundedButtonNode's own relayout.
                 }
             }, queue: Queue.mainQueue())
             self.gritGlitchTimer = timer
