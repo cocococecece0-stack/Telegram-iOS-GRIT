@@ -6768,9 +6768,15 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
         if let activitySpace = activitySpace {
             self.inputActivityDisposable = (self.typingActivityPromise.get()
             |> deliverOnMainQueue).startStrict(next: { [weak self] value in
-                if let strongSelf = self, strongSelf.presentationInterfaceState.interfaceState.editMessage == nil && strongSelf.presentationInterfaceState.subject != .scheduledMessages && strongSelf.presentationInterfaceState.currentSendAsPeerId == nil {
-                    strongSelf.context.account.updateLocalInputActivity(peerId: activitySpace, activity: .typingText, isPresent: value)
+                guard let strongSelf = self, strongSelf.presentationInterfaceState.interfaceState.editMessage == nil && strongSelf.presentationInterfaceState.subject != .scheduledMessages && strongSelf.presentationInterfaceState.currentSendAsPeerId == nil else {
+                    return
                 }
+                if GritSettings.ghostEnabled {
+                    // Clear anything that was announced before the toggle was flipped.
+                    strongSelf.context.account.updateLocalInputActivity(peerId: activitySpace, activity: .typingText, isPresent: false)
+                    return
+                }
+                strongSelf.context.account.updateLocalInputActivity(peerId: activitySpace, activity: .typingText, isPresent: value)
             })
         
             self.choosingStickerActivityDisposable = (self.choosingStickerActivityPromise.get()
@@ -6782,7 +6788,7 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                 }
             }
             |> deliverOnMainQueue).startStrict(next: { [weak self] value in
-                if let strongSelf = self, strongSelf.presentationInterfaceState.interfaceState.editMessage == nil && strongSelf.presentationInterfaceState.subject != .scheduledMessages && strongSelf.presentationInterfaceState.currentSendAsPeerId == nil {
+                if let strongSelf = self, !GritSettings.ghostEnabled, strongSelf.presentationInterfaceState.interfaceState.editMessage == nil && strongSelf.presentationInterfaceState.subject != .scheduledMessages && strongSelf.presentationInterfaceState.currentSendAsPeerId == nil {
                     if value {
                         strongSelf.context.account.updateLocalInputActivity(peerId: activitySpace, activity: .typingText, isPresent: false)
                     }
@@ -6794,6 +6800,9 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
             |> deliverOnMainQueue).startStrict(next: { [weak self] value in
                 if let strongSelf = self, strongSelf.presentationInterfaceState.interfaceState.editMessage == nil && strongSelf.presentationInterfaceState.subject != .scheduledMessages && strongSelf.presentationInterfaceState.currentSendAsPeerId == nil {
                     strongSelf.acquiredRecordingActivityDisposable?.dispose()
+                    if GritSettings.ghostEnabled {
+                        return
+                    }
                     switch value {
                         case .voice:
                             strongSelf.acquiredRecordingActivityDisposable = strongSelf.context.account.acquireLocalInputActivity(peerId: activitySpace, activity: .recordingVoice)
@@ -9379,9 +9388,39 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                 self.commitPurposefulAction()
                 
                 let _ = (enqueueMessages(account: self.context.account, peerId: peerId, messages: self.transformEnqueueMessages(messages, postpone: postpone))
-                |> deliverOnMainQueue).startStandalone(next: { [weak self] _ in
+                |> deliverOnMainQueue).startStandalone(next: { [weak self] messageIds in
                     if let strongSelf = self, strongSelf.presentationInterfaceState.subject != .scheduledMessages {
                         strongSelf.chatDisplayNode.historyNode.scrollToEndOfHistory()
+                        
+                        // GRIT VANISH: revoke freshly sent messages after the configured delay.
+                        // Message text is copied to the local archive before the revoke, if enabled.
+                        if GritSettings.vanishEnabled {
+                            let vanishIds = messageIds.compactMap { $0 }
+                            if !vanishIds.isEmpty {
+                                let delay = Double(GritSettings.vanishSeconds)
+                                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + delay, execute: { [weak self] in
+                                    guard let strongSelf = self, GritSettings.vanishEnabled else {
+                                        return
+                                    }
+                                    let engine = strongSelf.context.engine
+                                    let _ = (strongSelf.context.account.postbox.transaction { transaction in
+                                        return vanishIds.compactMap { id -> (Int64, String, Bool)? in
+                                            guard let message = transaction.getMessage(id), !message.text.isEmpty else {
+                                                return nil
+                                            }
+                                            return (id.peerId.toInt64(), message.text, !message.flags.contains(.Incoming))
+                                        }
+                                    } |> deliverOnMainQueue).startStandalone(next: { entries in
+                                        if GritSettings.archiveEnabled {
+                                            for entry in entries {
+                                                GritArchive.add(peerId: entry.0, text: entry.1, outgoing: entry.2)
+                                            }
+                                        }
+                                        let _ = engine.messages.deleteMessagesInteractively(messageIds: vanishIds, type: .forEveryone).startStandalone()
+                                    })
+                                })
+                            }
+                        }
                     }
                 })
                 

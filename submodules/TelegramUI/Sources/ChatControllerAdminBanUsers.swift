@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import Postbox
 import TelegramPresentationData
 import AccountContext
 import TelegramCore
@@ -419,6 +420,23 @@ extension ChatControllerImpl {
     }
         
     func beginDeleteMessagesWithUndo(messageIds: Set<EngineMessage.Id>, type: InteractiveMessagesDeletionType) {
+        // GRIT ARCHIVE: copy the text to the on-device archive before it disappears.
+        if GritSettings.archiveEnabled {
+            let ids = Array(messageIds)
+            let _ = (self.context.account.postbox.transaction { transaction in
+                return ids.compactMap { id -> (Int64, String, Bool)? in
+                    guard let message = transaction.getMessage(id), !message.text.isEmpty else {
+                        return nil
+                    }
+                    return (id.peerId.toInt64(), message.text, !message.flags.contains(.Incoming))
+                }
+            } |> deliverOnMainQueue).startStandalone(next: { entries in
+                for entry in entries {
+                    GritArchive.add(peerId: entry.0, text: entry.1, outgoing: entry.2)
+                }
+            })
+        }
+        
         var deleteImmediately = false
         if case .forEveryone = type {
             deleteImmediately = true

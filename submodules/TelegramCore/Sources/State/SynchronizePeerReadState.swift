@@ -3,6 +3,12 @@ import Postbox
 internal import TelegramApi
 import SwiftSignalKit
 
+/// GRIT GHOST: keep local read state (so the app stays usable) but never push
+/// read receipts to Telegram's servers. Read directly from UserDefaults because
+/// TelegramCore must not depend on TelegramPresentationData.
+private func gritGhostModeEnabled() -> Bool {
+    return (UserDefaults.standard.object(forKey: "GRIT.enable.ghost") as? Bool) ?? false
+}
 
 private enum PeerReadStateMarker: Equatable {
     case Global(Int32)
@@ -442,9 +448,15 @@ func synchronizePeerReadState(network: Network, postbox: Postbox, stateManager: 
             |> ignoreValues
         }
         var signal: Signal<Never, PeerReadStateValidationError> = .complete()
-        if push {
+        if push && !gritGhostModeEnabled() {
             signal = signal
             |> then(pushPeerReadState(network: network, postbox: postbox, stateManager: stateManager, peerId: peerId, willValidate: validate))
+        }
+        if gritGhostModeEnabled() {
+            // Confirm locally so the same pending read state is not retried.
+            signal = signal
+            |> then(confirmSynchronized(postbox: postbox, peerId: peerId)
+            |> ignoreValues)
         }
         if validate {
             signal = signal

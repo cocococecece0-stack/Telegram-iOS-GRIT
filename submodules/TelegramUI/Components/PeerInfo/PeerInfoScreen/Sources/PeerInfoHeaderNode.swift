@@ -116,6 +116,8 @@ final class PeerInfoHeaderNode: ASDisplayNode {
     
     let avatarClippingNode: SparseNode
     let avatarListNode: PeerInfoAvatarListNode
+    let gritGlowNode: ASDisplayNode
+    private var gritGlowObserver: NSObjectProtocol?
     
     let backgroundBannerView: UIView
     let backgroundCover = ComponentView<Empty>()
@@ -302,6 +304,24 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         self.avatarClippingNode.alpha = 0.996
         self.avatarClippingNode.clipsToBounds = true
         
+        // GRIT PROFILE GLOW: a radial acid halo behind the avatar.
+        self.gritGlowNode = ASDisplayNode()
+        self.gritGlowNode.isUserInteractionEnabled = false
+        self.gritGlowNode.accessibilityElementsHidden = true
+        self.gritGlowNode.alpha = GritSettings.profileGlowEnabled ? 1.0 : 0.0
+        let gritGlowLayer = SimpleGradientLayer()
+        gritGlowLayer.type = .radial
+        gritGlowLayer.startPoint = CGPoint(x: 0.5, y: 0.5)
+        gritGlowLayer.endPoint = CGPoint(x: 1.0, y: 1.0)
+        gritGlowLayer.colors = [
+            UIColor(rgb: 0x9eff00, alpha: 0.42).cgColor,
+            UIColor(rgb: 0x00e676, alpha: 0.18).cgColor,
+            UIColor.clear.cgColor
+        ]
+        gritGlowLayer.masksToBounds = true
+        gritGlowLayer.cornerRadius = 90.0
+        self.gritGlowNode.layer.addSublayer(gritGlowLayer)
+        
         self.avatarListNode = PeerInfoAvatarListNode(context: context, readyWhenGalleryLoads: avatarInitiallyExpanded, isSettings: isSettings)
         
         self.titleNodeContainer = ASDisplayNode()
@@ -387,12 +407,17 @@ final class PeerInfoHeaderNode: ASDisplayNode {
             self?.requestUpdateLayout?(false)
         }
         
+        self.gritGlowObserver = NotificationCenter.default.addObserver(forName: GritSettings.changedNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.gritGlowNode.alpha = GritSettings.profileGlowEnabled ? 1.0 : 0.0
+        }
+        
         self.view.addSubview(self.backgroundBannerView)
         self.titleNodeContainer.addSubnode(self.titleNode)
         self.subtitleNodeContainer.addSubnode(self.subtitleNode)
         self.subtitleNodeContainer.addSubnode(self.panelSubtitleNode)
         self.usernameNodeContainer.addSubnode(self.usernameNode)
 
+        self.regularContentNode.addSubnode(self.gritGlowNode)
         self.regularContentNode.addSubnode(self.avatarClippingNode)
         self.avatarClippingNode.addSubnode(self.avatarListNode)
         
@@ -1966,6 +1991,12 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         }
         let roundAvatarFrame = CGRect(origin: CGPoint(x: avatarCenter.x - roundAvatarSize.width / 2.0, y: -contentOffset + avatarOffset + avatarCenter.y - roundAvatarSize.height / 2.0), size: roundAvatarSize)
         self.expansionRoundAvatarFrame = roundAvatarFrame
+        
+        let gritGlowFrame = roundAvatarFrame.insetBy(dx: -36.0, dy: -36.0)
+        transition.updateFrame(node: self.gritGlowNode, frame: gritGlowFrame)
+        if let gritGlowLayer = self.gritGlowNode.layer.sublayers?.first as? SimpleGradientLayer {
+            gritGlowLayer.frame = self.gritGlowNode.bounds
+        }
 
         var apparentAvatarFrame: CGRect
         var apparentAvatarListFrame: CGRect

@@ -280,6 +280,21 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     items[.grit]!.append(PeerInfoScreenActionItem(id: 8, text: "GRIT CODES · grit / acid / void / filth / pulse", color: .accent, icon: nil, action: {
         NotificationCenter.default.post(name: GritSettings.codeFxNotification, object: "ACID")
     }))
+    items[.grit]!.append(gritSwitch(id: 9, text: "GRIT GHOST · no typing / no receipts", feature: .ghost, icon: PresentationResourcesSettings.security))
+    items[.grit]!.append(gritSwitch(id: 10, text: "GRIT VANISH · self-destruct sends", feature: .vanish, icon: PresentationResourcesSettings.security))
+    items[.grit]!.append(PeerInfoScreenActionItem(id: 11, text: "VANISH TIMER · \(GritSettings.vanishSeconds)s", color: .accent, icon: nil, action: {
+        let steps = [10, 30, 60, 120]
+        let current = GritSettings.vanishSeconds
+        let next = steps.first(where: { $0 > current }) ?? steps[0]
+        GritSettings.vanishSeconds = next
+        interaction.requestLayout(false)
+    }))
+    items[.grit]!.append(gritSwitch(id: 12, text: "GRIT ARCHIVE · keep deleted text", feature: .archive, icon: PresentationResourcesSettings.dataAndStorage))
+    items[.grit]!.append(gritSwitch(id: 13, text: "GRIT PROFILE GLOW", feature: .profileGlow, icon: PresentationResourcesSettings.appearance))
+    items[.grit]!.append(gritSwitch(id: 14, text: "GRIT CHAT GRID", feature: .chatGrid, icon: PresentationResourcesSettings.appearance))
+    items[.grit]!.append(PeerInfoScreenActionItem(id: 15, text: "VIEW GRIT ARCHIVE · \(GritArchive.entries.count) saved", color: .accent, icon: nil, action: {
+        NotificationCenter.default.post(name: GritSettings.codeFxNotification, object: "ARCHIVE")
+    }))
 
     let notificationsWarning: Bool
     if let settings = data.globalSettings {

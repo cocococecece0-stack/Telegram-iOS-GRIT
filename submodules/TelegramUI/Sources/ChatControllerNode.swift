@@ -91,6 +91,23 @@ private func gritScanlinePatternImage() -> UIImage? {
     }
 }
 
+// GRIT GRID: a faint neon grid drawn behind messages, never above text or controls.
+private func gritGridPatternImage() -> UIImage? {
+    let size = CGSize(width: 44.0, height: 44.0)
+    return UIGraphicsImageRenderer(size: size).image { context in
+        UIColor.clear.setFill()
+        context.fill(CGRect(origin: CGPoint(), size: size))
+        UIColor(rgb: 0x9eff00, alpha: 0.09).setStroke()
+        let path = UIBezierPath()
+        path.lineWidth = 1.0
+        path.move(to: CGPoint(x: 0.5, y: 0.0))
+        path.addLine(to: CGPoint(x: 0.5, y: size.height))
+        path.move(to: CGPoint(x: 0.0, y: 0.5))
+        path.addLine(to: CGPoint(x: size.width, y: 0.5))
+        path.stroke()
+    }
+}
+
 final class VideoNavigationControllerDropContentItem: NavigationControllerDropContentItem {
     let itemNode: OverlayMediaItemNode
     
@@ -231,6 +248,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     let contentDimNode: ASDisplayNode
     let backgroundNode: WallpaperBackgroundNode
     let gritScanlineNode: ASDisplayNode
+    let gritGridNode: ASDisplayNode
     private var gritScanlineObserver: NSObjectProtocol?
     private var gritPulseTimer: SwiftSignalKit.Timer?
     var historyNode: ChatHistoryListNodeImpl
@@ -520,6 +538,13 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         self.gritScanlineNode.backgroundColor = gritScanlinePatternImage().flatMap { UIColor(patternImage: $0) }
         self.gritScanlineNode.alpha = 0.9
         self.gritScanlineNode.isHidden = !GritSettings.crtEnabled
+        
+        self.gritGridNode = ASDisplayNode()
+        self.gritGridNode.isUserInteractionEnabled = false
+        self.gritGridNode.accessibilityElementsHidden = true
+        self.gritGridNode.backgroundColor = gritGridPatternImage().flatMap { UIColor(patternImage: $0) }
+        self.gritGridNode.alpha = 0.55
+        self.gritGridNode.isHidden = !GritSettings.chatGridEnabled
         if case .standard(.embedded) = chatPresentationInterfaceState.mode {
             // A history embedded in a profile pane (Saved): the wallpaper is decoration there. The chat screen itself is
             // left as it is (its own pass).
@@ -880,6 +905,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
 
         self.gritScanlineObserver = NotificationCenter.default.addObserver(forName: GritSettings.changedNotification, object: nil, queue: .main) { [weak self] _ in
             self?.gritScanlineNode.isHidden = !GritSettings.crtEnabled
+            self?.gritGridNode.isHidden = !GritSettings.chatGridEnabled
         }
 
         // GRIT PULSE: the CRT grain breathes slowly, giving the chat a live neon feel.
@@ -966,6 +992,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         // UIKit's own order here until the chat screen gets its own VoiceOver pass.
         self.contentContainerNode.accessibilityUsesViewElements = true
         self.contentContainerNode.contentNode.addSubnode(self.backgroundNode)
+        self.contentContainerNode.contentNode.addSubnode(self.gritGridNode)
         self.contentContainerNode.contentNode.addSubnode(self.gritScanlineNode)
         self.contentContainerNode.contentNode.addSubnode(self.historyNodeContainer)
         
@@ -1490,6 +1517,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
                 containerNode.clipsToBounds = true
                 containerNode.cornerRadius = 26.0
                 containerNode.addSubnode(self.backgroundNode)
+                containerNode.addSubnode(self.gritGridNode)
                 containerNode.addSubnode(self.gritScanlineNode)
                 containerNode.addSubnode(self.historyNodeContainer)
                 self.contentContainerNode.isHidden = true
@@ -1530,7 +1558,8 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
                 self.containerNode = nil
                 containerNode.removeFromSupernode()
                 self.contentContainerNode.contentNode.insertSubnode(self.backgroundNode, at: 0)
-                self.contentContainerNode.contentNode.insertSubnode(self.gritScanlineNode, aboveSubnode: self.backgroundNode)
+                self.contentContainerNode.contentNode.insertSubnode(self.gritGridNode, aboveSubnode: self.backgroundNode)
+                self.contentContainerNode.contentNode.insertSubnode(self.gritScanlineNode, aboveSubnode: self.gritGridNode)
                 self.contentContainerNode.contentNode.insertSubnode(self.historyNodeContainer, aboveSubnode: self.gritScanlineNode)
                 if let restrictedNode = self.restrictedNode {
                     self.contentContainerNode.contentNode.insertSubnode(restrictedNode, aboveSubnode: self.historyNodeContainer)
@@ -2259,6 +2288,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         let wallpaperBounds = CGRect(x: 0.0, y: 0.0, width: layout.size.width - wrappingInsets.left - wrappingInsets.right, height: layout.size.height)
         
         transition.updateFrame(node: self.backgroundNode, frame: wallpaperBounds)
+        transition.updateFrame(node: self.gritGridNode, frame: wallpaperBounds)
         transition.updateFrame(node: self.gritScanlineNode, frame: wallpaperBounds)
         
         var displayMode: WallpaperDisplayMode = .aspectFill

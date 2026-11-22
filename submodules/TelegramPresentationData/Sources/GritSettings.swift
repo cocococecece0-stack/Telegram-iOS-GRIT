@@ -12,6 +12,11 @@ public enum GritFeature: String {
     case antiScreenshot
     case neon
     case streak
+    case ghost
+    case vanish
+    case archive
+    case profileGlow
+    case chatGrid
 }
 
 public enum GritSettings {
@@ -25,6 +30,10 @@ public enum GritSettings {
     public static func isEnabled(_ feature: GritFeature) -> Bool {
         if let value = UserDefaults.standard.object(forKey: key(feature)) as? Bool {
             return value
+        }
+        // Ghost mode is opt-in: never change delivery behaviour silently.
+        if feature == .ghost || feature == .vanish || feature == .archive {
+            return false
         }
         return true
     }
@@ -49,4 +58,23 @@ public enum GritSettings {
     public static var antiScreenshotEnabled: Bool { isEnabled(.antiScreenshot) }
     public static var neonEnabled: Bool { isEnabled(.neon) }
     public static var streakEnabled: Bool { isEnabled(.streak) }
+    public static var ghostEnabled: Bool { isEnabled(.ghost) }
+    public static var vanishEnabled: Bool { isEnabled(.vanish) }
+    public static var archiveEnabled: Bool { isEnabled(.archive) }
+    public static var profileGlowEnabled: Bool { isEnabled(.profileGlow) }
+    public static var chatGridEnabled: Bool { isEnabled(.chatGrid) }
+
+    private static let vanishSecondsKey = "GRIT.vanishSeconds"
+
+    /// Self-destruct delay for messages sent while GRIT VANISH is enabled.
+    public static var vanishSeconds: Int {
+        get {
+            let value = UserDefaults.standard.integer(forKey: vanishSecondsKey)
+            return value > 0 ? value : 30
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: vanishSecondsKey)
+            NotificationCenter.default.post(name: changedNotification, object: nil)
+        }
+    }
 }

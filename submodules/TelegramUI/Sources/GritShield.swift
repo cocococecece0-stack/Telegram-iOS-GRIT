@@ -77,6 +77,19 @@ public final class GritShield {
         case "PULSE":
             color = UIColor(rgb: 0x00e676)
             title = "PULSE // HEARTBEAT"
+        case "ARCHIVE":
+            color = UIColor(rgb: 0xb388ff)
+            let entries = GritArchive.entries
+            if entries.isEmpty {
+                title = "GRIT ARCHIVE // EMPTY"
+            } else {
+                let lines = entries.prefix(6).map { entry -> String in
+                    let text = (entry["text"] as? String) ?? ""
+                    let outgoing = (entry["outgoing"] as? Bool) ?? false
+                    return (outgoing ? "› " : "‹ ") + text.replacingOccurrences(of: "\n", with: " ")
+                }
+                title = "GRIT ARCHIVE // \(entries.count) SAVED\n" + lines.joined(separator: "\n")
+            }
         default:
             color = UIColor(rgb: 0x9eff00)
             title = "ENTER THE GRIT"
@@ -96,11 +109,12 @@ public final class GritShield {
 
         let label = UILabel(frame: overlay.bounds.insetBy(dx: 24.0, dy: 24.0))
         label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        let isArchive = code == "ARCHIVE"
         label.text = title
         label.textColor = color
-        label.font = UIFont.systemFont(ofSize: 28.0, weight: .black)
-        label.textAlignment = .center
-        label.numberOfLines = 2
+        label.font = UIFont.systemFont(ofSize: isArchive ? 15.0 : 28.0, weight: isArchive ? .semibold : .black)
+        label.textAlignment = isArchive ? .left : .center
+        label.numberOfLines = isArchive ? 0 : 2
         overlay.addSubview(label)
 
         window.addSubview(overlay)
@@ -109,7 +123,7 @@ public final class GritShield {
             overlay.alpha = 1.0
         }, completion: { [weak self] _ in
             self?.hideTimer?.invalidate()
-            let timer = SwiftSignalKit.Timer(timeout: 1.1, repeat: false, completion: { [weak self] in
+            let timer = SwiftSignalKit.Timer(timeout: code == "ARCHIVE" ? 5.0 : 1.1, repeat: false, completion: { [weak self] in
                 Queue.mainQueue().async {
                     guard let self else {
                         return
