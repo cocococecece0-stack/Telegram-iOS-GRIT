@@ -162,6 +162,16 @@ final class PeerInfoAvatarTransformContainerNode: ASDisplayNode {
             regularNavigationContentsSecondaryColor,
             regularNavigationContentsSecondaryColor
         ]
+
+        // GRIT OS v6: profile story rings follow the active design mode.
+        if GritSettings.holoProfileEnabled {
+            let active = UIColor(rgb: GritDesign.accent)
+            let alt = UIColor(rgb: GritDesign.mode.accentAlt)
+            colors.unseenColors = [active, alt]
+            colors.unseenCloseFriendsColors = [alt, active]
+            let inactive = UIColor(rgb: GritDesign.mode.textSecondary, alpha: 0.45)
+            colors.seenColors = [inactive, inactive]
+        }
         
         var storyStats: AvatarNode.StoryStats?
         if let storyData = self.storyData {

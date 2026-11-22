@@ -8,7 +8,7 @@ import TelegramPresentationData
 private func gritStarParticle() -> UIImage {
     let size = CGSize(width: 14.0, height: 14.0)
     return UIGraphicsImageRenderer(size: size).image { context in
-        UIColor(rgb: 0x9eff00).setFill()
+        UIColor(rgb: GritDesign.accent).setFill()
         let path = UIBezierPath()
         let center = CGPoint(x: size.width / 2.0, y: size.height / 2.0)
         for i in 0 ..< 10 {
@@ -216,6 +216,26 @@ public final class GritShield {
                 return
             }
         }
+        // GRIT OS v6: three new full-screen visual codes. Like STAR/GIFT they
+        // are pure local effects and intentionally bypass the secret-code gate.
+        if code == "MATRIX" {
+            self.showMatrix()
+            return
+        }
+        if code == "GLITCH" {
+            self.showGlitch()
+            return
+        }
+        if code == "NFT" {
+            self.showCelebration(
+                title: "GRIT NFT",
+                subtitle: "\(GritDesign.mode.symbol) MINTED LOCALLY // \(GritDesign.mode.name)",
+                tint: GritDesign.mode.accentAlt,
+                image: nil,
+                stars: nil
+            )
+            return
+        }
         guard GritSettings.secretEnabled else {
             return
         }
@@ -249,7 +269,7 @@ public final class GritShield {
                 title = "GRIT ARCHIVE // \(entries.count) SAVED\n" + lines.joined(separator: "\n")
             }
         default:
-            color = UIColor(rgb: 0x9eff00)
+            color = UIColor(rgb: GritDesign.accent)
             title = "ENTER THE GRIT"
         }
 
@@ -301,6 +321,120 @@ public final class GritShield {
         })
     }
 
+    /// GRIT OS v6: falling-glyph terminal rain.
+    private func showMatrix() {
+        guard let window = self.window else {
+            return
+        }
+        self.codeOverlay?.removeFromSuperview()
+
+        let overlay = UIView(frame: window.bounds)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.isUserInteractionEnabled = false
+        overlay.layer.zPosition = 10004
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.93)
+
+        let glyphs = Array("アイウエオカキクケコサシスセソタチツテト0123456789GRIT")
+        let spacing: CGFloat = 32.0
+        let columns = max(6, Int(window.bounds.width / spacing))
+        for index in 0 ..< columns {
+            var text = ""
+            for _ in 0 ..< 22 {
+                text.append(glyphs[Int.random(in: 0 ..< glyphs.count)])
+                text.append("\n")
+            }
+            let column = UILabel(frame: CGRect(x: CGFloat(index) * spacing, y: -window.bounds.height, width: spacing, height: window.bounds.height * 2.0))
+            column.text = text
+            column.numberOfLines = 0
+            column.font = UIFont.monospacedSystemFont(ofSize: 14.0, weight: .bold)
+            column.textColor = UIColor(rgb: index % 3 == 0 ? GritDesign.mode.accentAlt : GritDesign.accent, alpha: 0.8)
+            column.alpha = index % 2 == 0 ? 1.0 : 0.55
+            overlay.addSubview(column)
+            UIView.animate(withDuration: Double.random(in: 1.2 ... 2.6), delay: 0.0, options: [.repeat, .curveLinear], animations: {
+                column.frame.origin.y = window.bounds.height
+            })
+        }
+
+        let title = UILabel(frame: CGRect(x: 0.0, y: window.bounds.height - 128.0, width: window.bounds.width, height: 44.0))
+        title.text = "GRIT // MATRIX"
+        title.textAlignment = .center
+        title.textColor = UIColor(rgb: GritDesign.accent)
+        title.font = UIFont.systemFont(ofSize: 26.0, weight: .black)
+        overlay.addSubview(title)
+
+        window.addSubview(overlay)
+        self.codeOverlay = overlay
+        self.scheduleOverlayDismiss(overlay, after: 2.6)
+    }
+
+    /// GRIT OS v6: RGB-split signal corruption.
+    private func showGlitch() {
+        guard let window = self.window else {
+            return
+        }
+        self.codeOverlay?.removeFromSuperview()
+
+        let overlay = UIView(frame: window.bounds)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.isUserInteractionEnabled = false
+        overlay.layer.zPosition = 10004
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+
+        let colors = [UIColor(rgb: GritDesign.accent), UIColor(rgb: GritDesign.mode.accentAlt), UIColor.white]
+        for (index, color) in colors.enumerated() {
+            let label = UILabel(frame: overlay.bounds.insetBy(dx: 16.0, dy: 0.0))
+            label.text = "ENTER THE GRIT"
+            label.textAlignment = .center
+            label.textColor = color
+            label.font = UIFont.systemFont(ofSize: 34.0, weight: .black)
+            label.alpha = 0.82
+            overlay.addSubview(label)
+
+            let animation = CAKeyframeAnimation(keyPath: "position")
+            let base = label.center
+            animation.values = [
+                NSValue(cgPoint: base),
+                NSValue(cgPoint: CGPoint(x: base.x + CGFloat(index - 1) * 14.0, y: base.y - 3.0)),
+                NSValue(cgPoint: CGPoint(x: base.x - CGFloat(index - 1) * 9.0, y: base.y + 4.0)),
+                NSValue(cgPoint: base)
+            ]
+            animation.duration = 0.18 + Double(index) * 0.04
+            animation.repeatCount = .infinity
+            label.layer.add(animation, forKey: "gritGlitch")
+        }
+
+        for index in 0 ..< 12 {
+            let bar = UIView(frame: CGRect(x: 0.0, y: CGFloat(index) * window.bounds.height / 12.0, width: window.bounds.width, height: 2.0))
+            bar.backgroundColor = UIColor(rgb: GritDesign.accent, alpha: 0.16)
+            overlay.addSubview(bar)
+        }
+
+        window.addSubview(overlay)
+        self.codeOverlay = overlay
+        self.scheduleOverlayDismiss(overlay, after: 1.8)
+    }
+
+    private func scheduleOverlayDismiss(_ overlay: UIView, after timeout: TimeInterval) {
+        self.hideTimer?.invalidate()
+        let timer = SwiftSignalKit.Timer(timeout: timeout, repeat: false, completion: { [weak self] in
+            Queue.mainQueue().async {
+                guard let self else {
+                    return
+                }
+                UIView.animate(withDuration: 0.3, animations: {
+                    overlay.alpha = 0.0
+                }, completion: { _ in
+                    overlay.removeFromSuperview()
+                    if self.codeOverlay === overlay {
+                        self.codeOverlay = nil
+                    }
+                })
+            }
+        }, queue: Queue.mainQueue())
+        self.hideTimer = timer
+        timer.start()
+    }
+
     private func updateRecordingOverlay() {
         guard let window = self.window else {
             return
@@ -323,7 +457,7 @@ public final class GritShield {
                 let label = UILabel(frame: overlay.bounds.insetBy(dx: 24.0, dy: 24.0))
                 label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 label.text = "GRIT // SHIELD\nRECORDING BLOCKED"
-                label.textColor = UIColor(red: 0.62, green: 1.0, blue: 0.0, alpha: 1.0)
+                label.textColor = UIColor(rgb: GritDesign.accent)
                 label.font = UIFont.systemFont(ofSize: 26.0, weight: .bold)
                 label.numberOfLines = 2
                 label.textAlignment = .center

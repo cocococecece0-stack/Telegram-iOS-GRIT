@@ -123,6 +123,9 @@ final class PeerInfoHeaderNode: ASDisplayNode {
     let gritStatsView: UIView
     private var gritStatsLabels: [UILabel] = []
     private var gritVaultObserver: NSObjectProtocol?
+    private var gritDesignObserver: NSObjectProtocol?
+    private var gritHoloGradient: SimpleGradientLayer?
+    private var gritGlowGradient: SimpleGradientLayer?
     
     let backgroundBannerView: UIView
     let backgroundCover = ComponentView<Empty>()
@@ -319,19 +322,20 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         gritGlowLayer.startPoint = CGPoint(x: 0.5, y: 0.5)
         gritGlowLayer.endPoint = CGPoint(x: 1.0, y: 1.0)
         gritGlowLayer.colors = [
-            UIColor(rgb: 0x9eff00, alpha: 0.42).cgColor,
-            UIColor(rgb: 0x00e676, alpha: 0.18).cgColor,
+            UIColor(rgb: GritDesign.accent, alpha: 0.42).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.18).cgColor,
             UIColor.clear.cgColor
         ]
         gritGlowLayer.masksToBounds = true
         gritGlowLayer.cornerRadius = 90.0
+        self.gritGlowGradient = gritGlowLayer
         self.gritGlowNode.layer.addSublayer(gritGlowLayer)
         
         self.gritAvatarRing = CAShapeLayer()
         self.gritAvatarRing.fillColor = UIColor.clear.cgColor
-        self.gritAvatarRing.strokeColor = UIColor(rgb: 0x9eff00, alpha: 0.85).cgColor
+        self.gritAvatarRing.strokeColor = UIColor(rgb: GritDesign.accent, alpha: 0.85).cgColor
         self.gritAvatarRing.lineWidth = 3.0
-        self.gritAvatarRing.shadowColor = UIColor(rgb: 0x9eff00).cgColor
+        self.gritAvatarRing.shadowColor = UIColor(rgb: GritDesign.accent).cgColor
         self.gritAvatarRing.shadowRadius = 10.0
         self.gritAvatarRing.shadowOpacity = 0.8
         self.gritGlowNode.layer.addSublayer(self.gritAvatarRing)
@@ -343,24 +347,15 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         let holoGradient = SimpleGradientLayer()
         holoGradient.frame = UIScreen.main.bounds
         holoGradient.colors = [
-            UIColor(rgb: 0x9eff00, alpha: 0.55).cgColor,
-            UIColor(rgb: 0x00e676, alpha: 0.28).cgColor,
-            UIColor(rgb: 0xb388ff, alpha: 0.42).cgColor,
-            UIColor(rgb: 0x101810, alpha: 0.9).cgColor
+            UIColor(rgb: GritDesign.accent, alpha: 0.55).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.34).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.16).cgColor,
+            UIColor(rgb: GritDesign.mode.background, alpha: 0.9).cgColor
         ]
         holoGradient.startPoint = CGPoint(x: 0.0, y: 0.0)
         holoGradient.endPoint = CGPoint(x: 1.0, y: 1.0)
-        let holoAnimation = CABasicAnimation(keyPath: "colors")
-        holoAnimation.toValue = [
-            UIColor(rgb: 0xb388ff, alpha: 0.5).cgColor,
-            UIColor(rgb: 0x9eff00, alpha: 0.45).cgColor,
-            UIColor(rgb: 0x00e676, alpha: 0.3).cgColor,
-            UIColor(rgb: 0x0d140d, alpha: 0.9).cgColor
-        ]
-        holoAnimation.duration = 7.0
-        holoAnimation.autoreverses = true
-        holoAnimation.repeatCount = .infinity
-        holoGradient.add(holoAnimation, forKey: "gritHolo")
+        holoGradient.add(self.makeGritHoloAnimation(), forKey: "gritHolo")
+        self.gritHoloGradient = holoGradient
         self.gritHoloView.layer.insertSublayer(holoGradient, at: 0)
         
         // GRIT IDENTITY badges: level / streak / codes.
@@ -370,12 +365,12 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         for _ in 0 ..< 3 {
             let badge = UILabel()
             badge.font = UIFont.systemFont(ofSize: 11.0, weight: .bold)
-            badge.textColor = UIColor(rgb: 0x9eff00)
+            badge.textColor = UIColor(rgb: GritDesign.accent)
             badge.textAlignment = .center
             badge.backgroundColor = UIColor.black.withAlphaComponent(0.35)
             badge.layer.cornerRadius = 10.0
             badge.layer.borderWidth = 1.0
-            badge.layer.borderColor = UIColor(rgb: 0x9eff00, alpha: 0.4).cgColor
+            badge.layer.borderColor = UIColor(rgb: GritDesign.accent, alpha: 0.4).cgColor
             self.gritStatsLabels.append(badge)
             self.gritStatsView.addSubview(badge)
         }
@@ -473,6 +468,9 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         self.gritVaultObserver = NotificationCenter.default.addObserver(forName: GritVault.changedNotification, object: nil, queue: .main) { [weak self] _ in
             self?.updateGritStats()
         }
+        self.gritDesignObserver = NotificationCenter.default.addObserver(forName: GritDesign.changedNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.applyGritDesign()
+        }
         
         self.view.addSubview(self.backgroundBannerView)
         self.backgroundBannerView.insertSubview(self.gritHoloView, at: 0)
@@ -561,12 +559,54 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         }
     }
     
+    private func makeGritHoloAnimation() -> CABasicAnimation {
+        let animation = CABasicAnimation(keyPath: "colors")
+        animation.toValue = [
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.42).cgColor,
+            UIColor(rgb: GritDesign.accent, alpha: 0.36).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.22).cgColor,
+            UIColor(rgb: GritDesign.mode.background, alpha: 0.9).cgColor
+        ]
+        animation.duration = 7.0
+        animation.autoreverses = true
+        animation.repeatCount = .infinity
+        return animation
+    }
+
+    private func applyGritDesign() {
+        self.gritAvatarRing.strokeColor = UIColor(rgb: GritDesign.accent, alpha: 0.85).cgColor
+        self.gritAvatarRing.shadowColor = UIColor(rgb: GritDesign.accent).cgColor
+        self.gritGlowGradient?.colors = [
+            UIColor(rgb: GritDesign.accent, alpha: 0.42).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.18).cgColor,
+            UIColor.clear.cgColor
+        ]
+        for badge in self.gritStatsLabels {
+            badge.textColor = UIColor(rgb: GritDesign.accent)
+            badge.layer.borderColor = UIColor(rgb: GritDesign.accent, alpha: 0.4).cgColor
+        }
+        guard let gradient = self.gritHoloGradient else {
+            return
+        }
+        gradient.colors = [
+            UIColor(rgb: GritDesign.accent, alpha: 0.55).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.34).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.16).cgColor,
+            UIColor(rgb: GritDesign.mode.background, alpha: 0.9).cgColor
+        ]
+        gradient.removeAnimation(forKey: "gritHolo")
+        gradient.add(self.makeGritHoloAnimation(), forKey: "gritHolo")
+    }
+
     deinit {
         self.emojiStatusPackDisposable.dispose()
         if let observer = self.gritGlowObserver {
             NotificationCenter.default.removeObserver(observer)
         }
         if let observer = self.gritVaultObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = self.gritDesignObserver {
             NotificationCenter.default.removeObserver(observer)
         }
     }

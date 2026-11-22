@@ -4,7 +4,11 @@ import TelegramCore
 import TelegramUIPreferences
 
 public let defaultDarkPresentationTheme = makeDefaultDarkPresentationTheme(preview: false)
-public let defaultDarkColorPresentationTheme = customizeDefaultDarkPresentationTheme(theme: defaultDarkPresentationTheme, editing: false, title: nil, accentColor: UIColor(rgb: 0x9eff00), backgroundColors: [], bubbleColors: [], animateBubbleColors: false, wallpaper: nil, baseColor: nil)
+/// GRIT OS v6: the default dark theme ships with the acid bubble gradient.
+/// Previously the GRIT palette was only reachable through the theme picker;
+/// making it the default is what turns this fork into a real redesign instead
+/// of a set of optional toggles.
+public let defaultDarkColorPresentationTheme = customizeDefaultDarkPresentationTheme(theme: defaultDarkPresentationTheme, editing: false, title: nil, accentColor: UIColor(rgb: 0x9eff00), backgroundColors: [], bubbleColors: [0x1b5e20, 0x00e676, 0x9eff00], animateBubbleColors: nil, wallpaper: nil, baseColor: nil)
 
 private extension PresentationThemeBaseColor {
     var colorWallpaper: (BuiltinWallpaperData, Int32, [UInt32])? {

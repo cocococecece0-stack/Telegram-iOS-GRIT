@@ -405,6 +405,10 @@ class ThemeSettingsAppIconItemNode: ListViewItemNode, ItemListItemNode {
                                     name = "GRIT ACID"
                                 case "GRITVOID":
                                     name = "GRIT VOID"
+                                case "GRITHOLO":
+                                    name = "GRIT HOLO"
+                                case "GRITCRT":
+                                    name = "GRIT CRT"
                                 case "WhiteFilled":
                                     name = "⍺ White"
                                 case "New1":

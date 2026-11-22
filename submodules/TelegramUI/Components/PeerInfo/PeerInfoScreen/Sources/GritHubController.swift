@@ -116,6 +116,7 @@ final class GritHubController: UIViewController, UIImagePickerControllerDelegate
         
         NotificationCenter.default.addObserver(self, selector: #selector(dataChanged), name: GritVault.changedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(dataChanged), name: GritSettings.changedNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(designChanged), name: GritDesign.changedNotification, object: nil)
         
         self.buildHeader()
         self.rebuild()
@@ -132,28 +133,34 @@ final class GritHubController: UIViewController, UIImagePickerControllerDelegate
     @objc private func dataChanged() {
         self.rebuild()
     }
+
+    @objc private func designChanged() {
+        self.buildHeader()
+        self.rebuild()
+    }
     
     // MARK: - Header
     
     private func buildHeader() {
+        self.headerView.subviews.forEach { $0.removeFromSuperview() }
         self.headerView.layer.sublayers?.removeAll()
         
         let gradient = SimpleGradientLayer()
         gradient.frame = CGRect(x: 0.0, y: 0.0, width: max(UIScreen.main.bounds.width, 1.0), height: 230.0)
         gradient.colors = [
-            UIColor(rgb: 0x9eff00, alpha: 0.9).cgColor,
-            UIColor(rgb: 0x00e676, alpha: 0.5).cgColor,
-            UIColor(rgb: 0xb388ff, alpha: 0.65).cgColor,
-            UIColor(rgb: 0x070b07).cgColor
+            UIColor(rgb: GritDesign.accent, alpha: 0.62).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.32).cgColor,
+            UIColor(rgb: GritDesign.mode.surface, alpha: 0.95).cgColor,
+            UIColor(rgb: GritDesign.mode.background).cgColor
         ]
         gradient.startPoint = CGPoint(x: 0.0, y: 0.0)
         gradient.endPoint = CGPoint(x: 1.0, y: 1.0)
         let animation = CABasicAnimation(keyPath: "colors")
         animation.toValue = [
-            UIColor(rgb: 0xb388ff, alpha: 0.8).cgColor,
-            UIColor(rgb: 0x9eff00, alpha: 0.75).cgColor,
-            UIColor(rgb: 0x00e676, alpha: 0.55).cgColor,
-            UIColor(rgb: 0x070b07).cgColor
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.42).cgColor,
+            UIColor(rgb: GritDesign.accent, alpha: 0.5).cgColor,
+            UIColor(rgb: GritDesign.mode.surface, alpha: 0.9).cgColor,
+            UIColor(rgb: GritDesign.mode.background).cgColor
         ]
         animation.duration = 6.0
         animation.autoreverses = true
@@ -165,21 +172,21 @@ final class GritHubController: UIViewController, UIImagePickerControllerDelegate
         title.translatesAutoresizingMaskIntoConstraints = false
         title.text = "ENTER THE GRIT"
         title.font = UIFont.systemFont(ofSize: 34.0, weight: .black)
-        title.textColor = .black
+        title.textColor = UIColor(rgb: GritDesign.accent)
         self.headerView.addSubview(title)
         
         let subtitle = UILabel()
         subtitle.translatesAutoresizingMaskIntoConstraints = false
-        subtitle.text = "GRIT HUB  //  v5  //  OFFLINE VISUAL SYSTEM"
+        subtitle.text = "GRIT OS  //  v6  //  \(GritDesign.mode.name) ENGINE"
         subtitle.font = UIFont.systemFont(ofSize: 12.0, weight: .bold)
-        subtitle.textColor = UIColor.black.withAlphaComponent(0.75)
+        subtitle.textColor = UIColor.white.withAlphaComponent(0.8)
         self.headerView.addSubview(subtitle)
         
         let stats = UILabel()
         stats.translatesAutoresizingMaskIntoConstraints = false
         stats.text = self.headerStatsText()
         stats.font = UIFont.systemFont(ofSize: 14.0, weight: .black)
-        stats.textColor = .black
+        stats.textColor = UIColor.white.withAlphaComponent(0.9)
         self.headerView.addSubview(stats)
         
         NSLayoutConstraint.activate([
@@ -209,6 +216,7 @@ final class GritHubController: UIViewController, UIImagePickerControllerDelegate
         self.mainStack.addArrangedSubview(self.makeIdentityCard())
         self.mainStack.addArrangedSubview(self.makeInvisibleCard())
         self.mainStack.addArrangedSubview(self.makeVisualsCard())
+        self.mainStack.addArrangedSubview(self.makeDesignSystemCard())
         self.mainStack.addArrangedSubview(self.makeGiftStudioCard())
         self.mainStack.addArrangedSubview(self.makePrivacyCard())
         self.mainStack.addArrangedSubview(self.makeCodesCard())
@@ -423,6 +431,102 @@ final class GritHubController: UIViewController, UIImagePickerControllerDelegate
         stack.addArrangedSubview(makeToggleRow(title: "CRT / PULSE / GLITCH", subtitle: "The classic GRIT atmosphere.", feature: .crt))
         return card
     }
+
+    /// GRIT OS v6 centerpiece: four complete design languages, not just accents.
+    private func makeDesignSystemCard() -> UIView {
+        let (card, stack) = makeCard(
+            title: "DESIGN SYSTEM",
+            subtitle: "Four complete visual languages. Switching instantly repaints the HUB, chat aura, profile, story rings and code effects.",
+            tint: UIColor(rgb: GritDesign.accent)
+        )
+        for mode in GritDesignMode.allCases {
+            stack.addArrangedSubview(self.makeDesignRow(mode: mode))
+        }
+        return card
+    }
+
+    private func makeDesignRow(mode: GritDesignMode) -> UIView {
+        let row = UIView()
+        row.translatesAutoresizingMaskIntoConstraints = false
+        row.layer.cornerRadius = 14.0
+        row.clipsToBounds = true
+        row.layer.borderWidth = 1.0
+        let isActive = GritDesign.mode == mode
+        row.layer.borderColor = UIColor(rgb: mode.accent, alpha: isActive ? 0.95 : 0.22).cgColor
+        row.backgroundColor = UIColor(rgb: mode.background, alpha: 0.9)
+        row.heightAnchor.constraint(equalToConstant: 78.0).isActive = true
+
+        let tap = GritButton(title: "", tint: UIColor(rgb: mode.accent))
+        tap.translatesAutoresizingMaskIntoConstraints = false
+        tap.onTap = { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+            GritDesign.applyGlobalTheme(mode, accountManager: strongSelf.context.sharedContext.accountManager)
+            strongSelf.context.sharedContext.applicationBindings.requestSetAlternateIconName(mode.iconName, { _ in })
+        }
+        row.addSubview(tap)
+        NSLayoutConstraint.activate([
+            tap.topAnchor.constraint(equalTo: row.topAnchor),
+            tap.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            tap.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+            tap.bottomAnchor.constraint(equalTo: row.bottomAnchor)
+        ])
+
+        let swatch = UIView()
+        swatch.translatesAutoresizingMaskIntoConstraints = false
+        swatch.layer.cornerRadius = 8.0
+        swatch.clipsToBounds = true
+        let swatchGradient = SimpleGradientLayer()
+        swatchGradient.frame = CGRect(x: 0.0, y: 0.0, width: 46.0, height: 46.0)
+        swatchGradient.colors = [UIColor(rgb: mode.accent).cgColor, UIColor(rgb: mode.accentAlt).cgColor]
+        swatchGradient.startPoint = CGPoint(x: 0.0, y: 0.0)
+        swatchGradient.endPoint = CGPoint(x: 1.0, y: 1.0)
+        swatch.layer.insertSublayer(swatchGradient, at: 0)
+        row.addSubview(swatch)
+
+        let symbol = UILabel()
+        symbol.translatesAutoresizingMaskIntoConstraints = false
+        symbol.text = mode.symbol
+        symbol.textAlignment = .center
+        symbol.font = UIFont.systemFont(ofSize: 22.0, weight: .black)
+        symbol.textColor = UIColor(rgb: mode.background)
+        swatch.addSubview(symbol)
+        NSLayoutConstraint.activate([
+            symbol.centerXAnchor.constraint(equalTo: swatch.centerXAnchor),
+            symbol.centerYAnchor.constraint(equalTo: swatch.centerYAnchor)
+        ])
+
+        let name = UILabel()
+        name.translatesAutoresizingMaskIntoConstraints = false
+        name.text = isActive ? "\(mode.name)   ● ACTIVE" : mode.name
+        name.font = UIFont.systemFont(ofSize: 15.0, weight: .black)
+        name.textColor = UIColor(rgb: mode.accent)
+        row.addSubview(name)
+
+        let tagline = UILabel()
+        tagline.translatesAutoresizingMaskIntoConstraints = false
+        tagline.text = mode.tagline
+        tagline.font = UIFont.monospacedSystemFont(ofSize: 10.0, weight: .semibold)
+        tagline.textColor = UIColor(rgb: mode.textSecondary)
+        row.addSubview(tagline)
+
+        NSLayoutConstraint.activate([
+            swatch.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 12.0),
+            swatch.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            swatch.widthAnchor.constraint(equalToConstant: 46.0),
+            swatch.heightAnchor.constraint(equalToConstant: 46.0),
+
+            name.leadingAnchor.constraint(equalTo: swatch.trailingAnchor, constant: 12.0),
+            name.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -12.0),
+            name.topAnchor.constraint(equalTo: row.topAnchor, constant: 15.0),
+
+            tagline.leadingAnchor.constraint(equalTo: name.leadingAnchor),
+            tagline.trailingAnchor.constraint(equalTo: name.trailingAnchor),
+            tagline.topAnchor.constraint(equalTo: name.bottomAnchor, constant: 4.0)
+        ])
+        return row
+    }
     
     private func makeGiftStudioCard() -> UIView {
         let (card, stack) = makeCard(title: "GIFT STUDIO", subtitle: "Create and 'send' visual gifts. These are local collectibles — no real stars are spent or transferred.", tint: UIColor(rgb: 0xffd54f))
@@ -499,7 +603,7 @@ final class GritHubController: UIViewController, UIImagePickerControllerDelegate
     
     private func makeCodesCard() -> UIView {
         let (card, stack) = makeCard(title: "SECRET CODES", subtitle: "Type these in any chat input. Visuals only.", tint: UIColor(rgb: 0x00e5ff))
-        let codes = ["GRIT", "ACID", "VOID", "FILTH", "PULSE", "STAR"]
+        let codes = ["GRIT", "ACID", "VOID", "FILTH", "PULSE", "STAR", "GIFT", "MATRIX", "GLITCH", "NFT"]
         for code in codes {
             stack.addArrangedSubview(makeActionRow(title: "> \(code)", tint: UIColor(rgb: 0x00e5ff)) {
                 NotificationCenter.default.post(name: GritSettings.codeFxNotification, object: code)

@@ -9391,6 +9391,11 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                 |> deliverOnMainQueue).startStandalone(next: { [weak self] messageIds in
                     if let strongSelf = self, strongSelf.presentationInterfaceState.subject != .scheduledMessages {
                         strongSelf.chatDisplayNode.historyNode.scrollToEndOfHistory()
+
+                        // GRIT OS v6: a subtle design-coloured pulse on a successful send.
+                        if !messageIds.compactMap({ $0 }).isEmpty {
+                            strongSelf.chatDisplayNode.playGritSendPulse()
+                        }
                         
                         // GRIT VANISH: revoke freshly sent messages after the configured delay.
                         // Message text is copied to the local archive before the revoke, if enabled.

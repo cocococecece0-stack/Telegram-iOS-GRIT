@@ -1026,6 +1026,10 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 icons.append(PresentationAppIcon(name: "GRIT", imageName: "GRITIcon"))
                 icons.append(PresentationAppIcon(name: "GRITVOID", imageName: "GRITVOIDIcon"))
 
+                // GRIT OS v6: one icon per design language.
+                icons.append(PresentationAppIcon(name: "GRITHOLO", imageName: "GRITHOLOIcon"))
+                icons.append(PresentationAppIcon(name: "GRITCRT", imageName: "GRITCRTIcon"))
+
                 icons.append(PresentationAppIcon(name: "Premium", imageName: "Premium", isPremium: true))
                 icons.append(PresentationAppIcon(name: "PremiumTurbo", imageName: "PremiumTurbo", isPremium: true))
                 icons.append(PresentationAppIcon(name: "PremiumBlack", imageName: "PremiumBlack", isPremium: true))

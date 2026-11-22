@@ -97,7 +97,7 @@ private func gritGridPatternImage() -> UIImage? {
     return UIGraphicsImageRenderer(size: size).image { context in
         UIColor.clear.setFill()
         context.fill(CGRect(origin: CGPoint(), size: size))
-        UIColor(rgb: 0x9eff00, alpha: 0.09).setStroke()
+        UIColor(rgb: GritDesign.accent, alpha: 0.09).setStroke()
         let path = UIBezierPath()
         path.lineWidth = 1.0
         path.move(to: CGPoint(x: 0.5, y: 0.0))
@@ -251,6 +251,8 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     let gritGridNode: ASDisplayNode
     let gritAuraNode: ASDisplayNode
     private var gritScanlineObserver: NSObjectProtocol?
+    private var gritDesignObserver: NSObjectProtocol?
+    private var gritAuraGradient: SimpleGradientLayer?
     private var gritPulseTimer: SwiftSignalKit.Timer?
     var historyNode: ChatHistoryListNodeImpl
     var blurredHistoryNode: ASImageNode?
@@ -556,24 +558,15 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         let auraGradient = SimpleGradientLayer()
         auraGradient.frame = UIScreen.main.bounds
         auraGradient.colors = [
-            UIColor(rgb: 0x9eff00, alpha: 0.16).cgColor,
+            UIColor(rgb: GritDesign.accent, alpha: 0.16).cgColor,
             UIColor.clear.cgColor,
-            UIColor(rgb: 0xb388ff, alpha: 0.20).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.20).cgColor,
             UIColor.clear.cgColor
         ]
         auraGradient.startPoint = CGPoint(x: 0.0, y: 0.0)
         auraGradient.endPoint = CGPoint(x: 1.0, y: 1.0)
-        let auraAnimation = CABasicAnimation(keyPath: "colors")
-        auraAnimation.toValue = [
-            UIColor(rgb: 0xb388ff, alpha: 0.2).cgColor,
-            UIColor.clear.cgColor,
-            UIColor(rgb: 0x00e676, alpha: 0.16).cgColor,
-            UIColor.clear.cgColor
-        ]
-        auraAnimation.duration = 9.0
-        auraAnimation.autoreverses = true
-        auraAnimation.repeatCount = .infinity
-        auraGradient.add(auraAnimation, forKey: "gritAura")
+        auraGradient.add(self.makeGritAuraAnimation(), forKey: "gritAura")
+        self.gritAuraGradient = auraGradient
         self.gritAuraNode.layer.insertSublayer(auraGradient, at: 0)
         
         if case .standard(.embedded) = chatPresentationInterfaceState.mode {
@@ -939,6 +932,9 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
             self?.gritGridNode.isHidden = !GritSettings.chatGridEnabled
             self?.gritAuraNode.isHidden = !GritSettings.holoProfileEnabled
         }
+        self.gritDesignObserver = NotificationCenter.default.addObserver(forName: GritDesign.changedNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.applyGritDesign()
+        }
 
         // GRIT PULSE: the CRT grain breathes slowly, giving the chat a live neon feel.
         if GritSettings.pulseEnabled && GritSettings.crtEnabled {
@@ -1188,8 +1184,41 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         })
     }
     
+    private func makeGritAuraAnimation() -> CABasicAnimation {
+        let animation = CABasicAnimation(keyPath: "colors")
+        animation.toValue = [
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.2).cgColor,
+            UIColor.clear.cgColor,
+            UIColor(rgb: GritDesign.accent, alpha: 0.16).cgColor,
+            UIColor.clear.cgColor
+        ]
+        animation.duration = 9.0
+        animation.autoreverses = true
+        animation.repeatCount = .infinity
+        return animation
+    }
+
+    /// Repaint every chat decoration when the GRIT OS design mode changes.
+    private func applyGritDesign() {
+        self.gritGridNode.backgroundColor = gritGridPatternImage().flatMap { UIColor(patternImage: $0) }
+        guard let gradient = self.gritAuraGradient else {
+            return
+        }
+        gradient.colors = [
+            UIColor(rgb: GritDesign.accent, alpha: 0.16).cgColor,
+            UIColor.clear.cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.20).cgColor,
+            UIColor.clear.cgColor
+        ]
+        gradient.removeAnimation(forKey: "gritAura")
+        gradient.add(self.makeGritAuraAnimation(), forKey: "gritAura")
+    }
+
     deinit {
         if let observer = self.gritScanlineObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = self.gritDesignObserver {
             NotificationCenter.default.removeObserver(observer)
         }
         self.gritPulseTimer?.invalidate()
@@ -5781,6 +5810,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     }
     
     private var previousConfettiAnimationTimestamp: Double?
+    private var previousGritSendPulseTimestamp: Double?
     func playConfettiAnimation() {
         guard self.view.bounds.width > 0.0 else {
             return
@@ -5792,6 +5822,44 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         self.previousConfettiAnimationTimestamp = currentTime
         
         self.view.insertSubview(ConfettiView(frame: self.view.bounds), aboveSubview: self.historyNode.view)
+    }
+
+    /// GRIT OS v6: a quick accent-coloured light sweep on every sent message.
+    func playGritSendPulse() {
+        guard GritSettings.giftFxEnabled, self.view.bounds.width > 0.0 else {
+            return
+        }
+        let currentTime = CACurrentMediaTime()
+        if let previous = self.previousGritSendPulseTimestamp, abs(currentTime - previous) < 0.2 {
+            return
+        }
+        self.previousGritSendPulseTimestamp = currentTime
+
+        let pulse = UIView(frame: self.historyNode.view.bounds)
+        pulse.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        pulse.isUserInteractionEnabled = false
+        let gradient = SimpleGradientLayer()
+        gradient.frame = pulse.bounds
+        gradient.colors = [
+            UIColor(rgb: GritDesign.accent, alpha: 0.0).cgColor,
+            UIColor(rgb: GritDesign.accent, alpha: 0.18).cgColor,
+            UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.12).cgColor,
+            UIColor(rgb: GritDesign.accent, alpha: 0.0).cgColor
+        ]
+        gradient.startPoint = CGPoint(x: 0.0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
+        pulse.layer.addSublayer(gradient)
+        pulse.alpha = 0.0
+        self.view.insertSubview(pulse, aboveSubview: self.historyNode.view)
+        UIView.animate(withDuration: 0.14, animations: {
+            pulse.alpha = 1.0
+        }, completion: { _ in
+            UIView.animate(withDuration: 0.5, animations: {
+                pulse.alpha = 0.0
+            }, completion: { _ in
+                pulse.removeFromSuperview()
+            })
+        })
     }
     
     func willNavigateAway() {
