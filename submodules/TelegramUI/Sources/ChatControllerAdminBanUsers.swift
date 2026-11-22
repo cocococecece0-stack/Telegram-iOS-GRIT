@@ -466,8 +466,6 @@ extension ChatControllerImpl {
                     GritArchive.add(peerId: message.id.peerId.toInt64(), text: message.text, outgoing: !message.flags.contains(.Incoming))
                 }
                 commitDeletion()
-            }, error: { _ in
-                commitDeletion()
             })
         } else {
             commitDeletion()
