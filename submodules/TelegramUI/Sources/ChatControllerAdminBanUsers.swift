@@ -1,6 +1,5 @@
 import Foundation
 import UIKit
-import Postbox
 import TelegramPresentationData
 import AccountContext
 import TelegramCore
@@ -420,53 +419,59 @@ extension ChatControllerImpl {
     }
         
     func beginDeleteMessagesWithUndo(messageIds: Set<EngineMessage.Id>, type: InteractiveMessagesDeletionType) {
-        // GRIT ARCHIVE: copy the text to the on-device archive before it disappears.
+        let commitDeletion = { [weak self] in
+            guard let self else {
+                return
+            }
+            
+            var deleteImmediately = false
+            if case .forEveryone = type {
+                deleteImmediately = true
+            } else if case .scheduledMessages = self.presentationInterfaceState.subject {
+                deleteImmediately = true
+            } else if case .peer(self.context.account.peerId) = self.chatLocation {
+                deleteImmediately = true
+            }
+            
+            if deleteImmediately {
+                let _ = self.context.engine.messages.deleteMessagesInteractively(messageIds: Array(messageIds), type: type).startStandalone()
+                return
+            }
+            
+            self.chatDisplayNode.historyNode.ignoreMessageIds = Set(messageIds)
+            
+            let undoTitle = self.presentationData.strings.Chat_MessagesDeletedToast_Text(Int32(messageIds.count))
+            self.present(UndoOverlayController(presentationData: self.context.sharedContext.currentPresentationData.with { $0 }, content: .removedChat(context: self.context, title: NSAttributedString(string: undoTitle), text: nil), elevatedLayout: false, position: .top, action: { [weak self] value in
+                guard let self else {
+                    return false
+                }
+                if value == .commit {
+                    let _ = self.context.engine.messages.deleteMessagesInteractively(messageIds: Array(messageIds), type: type).startStandalone()
+                    return true
+                } else if value == .undo {
+                    self.chatDisplayNode.historyNode.ignoreMessageIds = Set()
+                    return true
+                }
+                return false
+            }), in: .current)
+        }
+        
+        // GRIT ARCHIVE: copy the text locally before the messages disappear.
         if GritSettings.archiveEnabled {
             let ids = Array(messageIds)
-            let _ = (self.context.account.postbox.transaction { transaction in
-                return ids.compactMap { id -> (Int64, String, Bool)? in
-                    guard let message = transaction.getMessage(id), !message.text.isEmpty else {
-                        return nil
-                    }
-                    return (id.peerId.toInt64(), message.text, !message.flags.contains(.Incoming))
+            let _ = (self.context.engine.data.get(
+                EngineDataMap(ids.map(TelegramEngine.EngineData.Item.Messages.Message.init(id:)))
+            ) |> deliverOnMainQueue).startStandalone(next: { messages in
+                for message in messages.values.compactMap({ $0 }) where !message.text.isEmpty {
+                    GritArchive.add(peerId: message.id.peerId.toInt64(), text: message.text, outgoing: !message.flags.contains(.Incoming))
                 }
-            } |> deliverOnMainQueue).startStandalone(next: { entries in
-                for entry in entries {
-                    GritArchive.add(peerId: entry.0, text: entry.1, outgoing: entry.2)
-                }
+                commitDeletion()
+            }, error: { _ in
+                commitDeletion()
             })
+        } else {
+            commitDeletion()
         }
-        
-        var deleteImmediately = false
-        if case .forEveryone = type {
-            deleteImmediately = true
-        } else if case .scheduledMessages = self.presentationInterfaceState.subject {
-            deleteImmediately = true
-        } else if case .peer(self.context.account.peerId) = self.chatLocation {
-            deleteImmediately = true
-        }
-        
-        if deleteImmediately {
-            let _ = self.context.engine.messages.deleteMessagesInteractively(messageIds: Array(messageIds), type: type).startStandalone()
-            return
-        }
-        
-        self.chatDisplayNode.historyNode.ignoreMessageIds = Set(messageIds)
-        
-        let undoTitle = self.presentationData.strings.Chat_MessagesDeletedToast_Text(Int32(messageIds.count))
-        self.present(UndoOverlayController(presentationData: self.context.sharedContext.currentPresentationData.with { $0 }, content: .removedChat(context: self.context, title: NSAttributedString(string: undoTitle), text: nil), elevatedLayout: false, position: .top, action: { [weak self] value in
-            guard let self else {
-                return false
-            }
-            if value == .commit {
-                let _ = self.context.engine.messages.deleteMessagesInteractively(messageIds: Array(messageIds), type: type).startStandalone()
-                return true
-            } else if value == .undo {
-                self.chatDisplayNode.historyNode.ignoreMessageIds = Set()
-                return true
-            }
-            return false
-        }), in: .current)
     }
     
     func presentDeleteMessageOptions(messageIds: Set<EngineMessage.Id>, options: ChatAvailableMessageActionOptions, contextController: ContextControllerProtocol?, sourceView: UIView? = nil, completion: @escaping (ContextMenuActionResult) -> Void) {
