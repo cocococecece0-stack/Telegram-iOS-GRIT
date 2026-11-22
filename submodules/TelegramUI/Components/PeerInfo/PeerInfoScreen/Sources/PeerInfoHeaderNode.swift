@@ -118,6 +118,11 @@ final class PeerInfoHeaderNode: ASDisplayNode {
     let avatarListNode: PeerInfoAvatarListNode
     let gritGlowNode: ASDisplayNode
     private var gritGlowObserver: NSObjectProtocol?
+    let gritHoloView: UIView
+    let gritAvatarRing: CAShapeLayer
+    let gritStatsView: UIView
+    private var gritStatsLabels: [UILabel] = []
+    private var gritVaultObserver: NSObjectProtocol?
     
     let backgroundBannerView: UIView
     let backgroundCover = ComponentView<Empty>()
@@ -322,6 +327,59 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         gritGlowLayer.cornerRadius = 90.0
         self.gritGlowNode.layer.addSublayer(gritGlowLayer)
         
+        self.gritAvatarRing = CAShapeLayer()
+        self.gritAvatarRing.fillColor = UIColor.clear.cgColor
+        self.gritAvatarRing.strokeColor = UIColor(rgb: 0x9eff00, alpha: 0.85).cgColor
+        self.gritAvatarRing.lineWidth = 3.0
+        self.gritAvatarRing.shadowColor = UIColor(rgb: 0x9eff00).cgColor
+        self.gritAvatarRing.shadowRadius = 10.0
+        self.gritAvatarRing.shadowOpacity = 0.8
+        self.gritGlowNode.layer.addSublayer(self.gritAvatarRing)
+        
+        // GRIT HOLO: animated acid/violet banner behind the profile cover.
+        self.gritHoloView = UIView()
+        self.gritHoloView.isUserInteractionEnabled = false
+        self.gritHoloView.alpha = GritSettings.holoProfileEnabled ? 1.0 : 0.0
+        let holoGradient = SimpleGradientLayer()
+        holoGradient.frame = UIScreen.main.bounds
+        holoGradient.colors = [
+            UIColor(rgb: 0x9eff00, alpha: 0.55).cgColor,
+            UIColor(rgb: 0x00e676, alpha: 0.28).cgColor,
+            UIColor(rgb: 0xb388ff, alpha: 0.42).cgColor,
+            UIColor(rgb: 0x101810, alpha: 0.9).cgColor
+        ]
+        holoGradient.startPoint = CGPoint(x: 0.0, y: 0.0)
+        holoGradient.endPoint = CGPoint(x: 1.0, y: 1.0)
+        let holoAnimation = CABasicAnimation(keyPath: "colors")
+        holoAnimation.toValue = [
+            UIColor(rgb: 0xb388ff, alpha: 0.5).cgColor,
+            UIColor(rgb: 0x9eff00, alpha: 0.45).cgColor,
+            UIColor(rgb: 0x00e676, alpha: 0.3).cgColor,
+            UIColor(rgb: 0x0d140d, alpha: 0.9).cgColor
+        ]
+        holoAnimation.duration = 7.0
+        holoAnimation.autoreverses = true
+        holoAnimation.repeatCount = .infinity
+        holoGradient.add(holoAnimation, forKey: "gritHolo")
+        self.gritHoloView.layer.insertSublayer(holoGradient, at: 0)
+        
+        // GRIT IDENTITY badges: level / streak / codes.
+        self.gritStatsView = UIView()
+        self.gritStatsView.isUserInteractionEnabled = false
+        self.gritStatsView.alpha = GritSettings.holoProfileEnabled ? 1.0 : 0.0
+        for _ in 0 ..< 3 {
+            let badge = UILabel()
+            badge.font = UIFont.systemFont(ofSize: 11.0, weight: .bold)
+            badge.textColor = UIColor(rgb: 0x9eff00)
+            badge.textAlignment = .center
+            badge.backgroundColor = UIColor.black.withAlphaComponent(0.35)
+            badge.layer.cornerRadius = 10.0
+            badge.layer.borderWidth = 1.0
+            badge.layer.borderColor = UIColor(rgb: 0x9eff00, alpha: 0.4).cgColor
+            self.gritStatsLabels.append(badge)
+            self.gritStatsView.addSubview(badge)
+        }
+        
         self.avatarListNode = PeerInfoAvatarListNode(context: context, readyWhenGalleryLoads: avatarInitiallyExpanded, isSettings: isSettings)
         
         self.titleNodeContainer = ASDisplayNode()
@@ -409,15 +467,22 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         
         self.gritGlowObserver = NotificationCenter.default.addObserver(forName: GritSettings.changedNotification, object: nil, queue: .main) { [weak self] _ in
             self?.gritGlowNode.alpha = GritSettings.profileGlowEnabled ? 1.0 : 0.0
+            self?.gritHoloView.alpha = GritSettings.holoProfileEnabled ? 1.0 : 0.0
+            self?.gritStatsView.alpha = GritSettings.holoProfileEnabled ? 1.0 : 0.0
+        }
+        self.gritVaultObserver = NotificationCenter.default.addObserver(forName: GritVault.changedNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.updateGritStats()
         }
         
         self.view.addSubview(self.backgroundBannerView)
+        self.backgroundBannerView.insertSubview(self.gritHoloView, at: 0)
         self.titleNodeContainer.addSubnode(self.titleNode)
         self.subtitleNodeContainer.addSubnode(self.subtitleNode)
         self.subtitleNodeContainer.addSubnode(self.panelSubtitleNode)
         self.usernameNodeContainer.addSubnode(self.usernameNode)
 
         self.regularContentNode.addSubnode(self.gritGlowNode)
+        self.regularContentNode.view.addSubview(self.gritStatsView)
         self.regularContentNode.addSubnode(self.avatarClippingNode)
         self.avatarClippingNode.addSubnode(self.avatarListNode)
         
@@ -483,8 +548,27 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         }
     }
     
+    private func updateGritStats() {
+        let progress = GritProgress.registerOpen()
+        let identity = GritVault.identity
+        let texts = [
+            "LVL \(identity.level)",
+            "🔥 \(progress.streak)D",
+            "★ \(GritVault.stars)"
+        ]
+        for (index, label) in self.gritStatsLabels.enumerated() {
+            label.text = index < texts.count ? texts[index] : ""
+        }
+    }
+    
     deinit {
         self.emojiStatusPackDisposable.dispose()
+        if let observer = self.gritGlowObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = self.gritVaultObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     /// VoiceOver: the avatar, name and status (with the buttons, in `PeerInfoHeaderRegularContentNode`), then the gifts
@@ -1997,6 +2081,8 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         if let gritGlowLayer = self.gritGlowNode.layer.sublayers?.first as? SimpleGradientLayer {
             gritGlowLayer.frame = self.gritGlowNode.bounds
         }
+        self.gritAvatarRing.frame = self.gritGlowNode.bounds
+        self.gritAvatarRing.path = UIBezierPath(ovalIn: self.gritGlowNode.bounds.insetBy(dx: 18.0, dy: 18.0)).cgPath
 
         var apparentAvatarFrame: CGRect
         var apparentAvatarListFrame: CGRect
@@ -2212,6 +2298,15 @@ final class PeerInfoHeaderNode: ASDisplayNode {
                     transition.updateAlpha(layer: subtitleRatingView.layer, alpha: subtitleAlpha)
                 }
             }
+        }
+        
+        self.updateGritStats()
+        let gritStatsWidth = max(210.0, titleFrame.width + 48.0)
+        let gritStatsFrame = CGRect(x: titleFrame.midX - gritStatsWidth / 2.0, y: max(titleFrame.maxY + 42.0, usernameFrame.maxY + 8.0), width: gritStatsWidth, height: 22.0)
+        transition.updateFrame(view: self.gritStatsView, frame: gritStatsFrame)
+        let gritBadgeWidth = gritStatsWidth / 3.0
+        for (index, badge) in self.gritStatsLabels.enumerated() {
+            transition.updateFrame(view: badge, frame: CGRect(x: CGFloat(index) * gritBadgeWidth + 2.0, y: 0.0, width: gritBadgeWidth - 4.0, height: 22.0))
         }
         
         if displayStandardTitle {

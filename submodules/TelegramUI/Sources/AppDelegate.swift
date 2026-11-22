@@ -454,6 +454,8 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         // GRIT STREAK: register the day once per launch so the counter works
         // even when the auth splash is skipped on an existing account.
         let _ = GritProgress.registerOpen()
+        // GRIT v5: seed the local gift vault on first launch.
+        GritVault.seedIfEmpty()
 
         hostView.containerView.layer.addSublayer(MetalEngine.shared.rootLayer)
         // On the first start after an update, compile the pipelines that would otherwise stall their first use.

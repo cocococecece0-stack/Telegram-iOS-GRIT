@@ -5,6 +5,27 @@ import Display
 import ScreenCaptureDetection
 import TelegramPresentationData
 
+private func gritStarParticle() -> UIImage {
+    let size = CGSize(width: 14.0, height: 14.0)
+    return UIGraphicsImageRenderer(size: size).image { context in
+        UIColor(rgb: 0x9eff00).setFill()
+        let path = UIBezierPath()
+        let center = CGPoint(x: size.width / 2.0, y: size.height / 2.0)
+        for i in 0 ..< 10 {
+            let angle = CGFloat(i) * .pi / 5.0 - .pi / 2.0
+            let radius: CGFloat = i % 2 == 0 ? 6.5 : 2.8
+            let point = CGPoint(x: center.x + cos(angle) * radius, y: center.y + sin(angle) * radius)
+            if i == 0 {
+                path.move(to: point)
+            } else {
+                path.addLine(to: point)
+            }
+        }
+        path.close()
+        path.fill()
+    }
+}
+
 /// GRIT SHIELD: local privacy layer.
 /// - On a screenshot: flashes an acid warning over the whole app.
 /// - On screen recording: masks the window with an opaque GRIT panel while recording is active.
@@ -57,11 +78,148 @@ public final class GritShield {
         }
     }
 
-    /// GRIT secret codes: `acid`, `void`, `filth`, `pulse`, `grit`.
-    public func flashCode(_ code: String) {
-        guard let window = self.window, self.codeOverlay == nil, GritSettings.secretEnabled else {
+    /// GRIT v5: a full-screen, local-only gift / star celebration.
+    private func showCelebration(title: String, subtitle: String, tint: UInt32, image: UIImage?, stars: Int?) {
+        guard let window, GritSettings.giftFxEnabled else {
             return
         }
+        self.codeOverlay?.removeFromSuperview()
+        
+        let overlay = UIView(frame: window.bounds)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.layer.zPosition = 10005
+        overlay.isUserInteractionEnabled = false
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.86)
+        
+        let cardWidth = min(window.bounds.width - 64.0, 320.0)
+        let cardHeight: CGFloat = image == nil ? 360.0 : 420.0
+        let card = UIView(frame: CGRect(x: (window.bounds.width - cardWidth) / 2.0, y: (window.bounds.height - cardHeight) / 2.0, width: cardWidth, height: cardHeight))
+        card.layer.cornerRadius = 28.0
+        card.clipsToBounds = true
+        card.layer.borderWidth = 1.0
+        card.layer.borderColor = UIColor(rgb: tint, alpha: 0.8).cgColor
+        
+        let gradient = SimpleGradientLayer()
+        gradient.frame = card.bounds
+        gradient.colors = [
+            UIColor(rgb: tint, alpha: 0.55).cgColor,
+            UIColor.black.cgColor,
+            UIColor(rgb: 0x101810).cgColor
+        ]
+        gradient.startPoint = CGPoint(x: 0.0, y: 0.0)
+        gradient.endPoint = CGPoint(x: 1.0, y: 1.0)
+        card.layer.insertSublayer(gradient, at: 0)
+        
+        var y: CGFloat = 20.0
+        if let image {
+            let imageView = UIImageView(frame: CGRect(x: 16.0, y: y, width: cardWidth - 32.0, height: 230.0))
+            imageView.contentMode = .scaleAspectFill
+            imageView.clipsToBounds = true
+            imageView.layer.cornerRadius = 20.0
+            imageView.image = image
+            card.addSubview(imageView)
+            y += 246.0
+        } else {
+            let symbol = UILabel(frame: CGRect(x: 0.0, y: 40.0, width: cardWidth, height: 150.0))
+            symbol.text = "✦"
+            symbol.textAlignment = .center
+            symbol.textColor = UIColor(rgb: tint)
+            symbol.font = UIFont.systemFont(ofSize: 110.0, weight: .black)
+            card.addSubview(symbol)
+            y += 176.0
+        }
+        
+        let titleLabel = UILabel(frame: CGRect(x: 20.0, y: y, width: cardWidth - 40.0, height: 34.0))
+        titleLabel.text = title
+        titleLabel.textAlignment = .center
+        titleLabel.textColor = .white
+        titleLabel.font = UIFont.systemFont(ofSize: 24.0, weight: .black)
+        card.addSubview(titleLabel)
+        y += 42.0
+        
+        let subtitleLabel = UILabel(frame: CGRect(x: 20.0, y: y, width: cardWidth - 40.0, height: 22.0))
+        subtitleLabel.text = subtitle
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.textColor = UIColor(rgb: tint)
+        subtitleLabel.font = UIFont.systemFont(ofSize: 13.0, weight: .bold)
+        card.addSubview(subtitleLabel)
+        y += 30.0
+        
+        if let stars {
+            let starsLabel = UILabel(frame: CGRect(x: 20.0, y: y, width: cardWidth - 40.0, height: 26.0))
+            starsLabel.text = "★ \(stars)  ·  BALANCE \(GritVault.stars)"
+            starsLabel.textAlignment = .center
+            starsLabel.textColor = UIColor(rgb: 0xffd54f)
+            starsLabel.font = UIFont.systemFont(ofSize: 14.0, weight: .bold)
+            card.addSubview(starsLabel)
+        }
+        
+        overlay.addSubview(card)
+        
+        let emitter = CAEmitterLayer()
+        emitter.emitterPosition = CGPoint(x: window.bounds.width / 2.0, y: -20.0)
+        emitter.emitterShape = .line
+        emitter.emitterSize = CGSize(width: window.bounds.width, height: 1.0)
+        let particle = CAEmitterCell()
+        particle.birthRate = 26.0
+        particle.lifetime = 5.0
+        particle.velocity = 90.0
+        particle.velocityRange = 60.0
+        particle.emissionRange = .pi / 8.0
+        particle.yAcceleration = 22.0
+        particle.scale = 0.5
+        particle.scaleRange = 0.4
+        particle.alphaSpeed = -0.2
+        particle.contents = gritStarParticle().cgImage
+        emitter.emitterCells = [particle]
+        overlay.layer.addSublayer(emitter)
+        
+        window.addSubview(overlay)
+        self.codeOverlay = overlay
+        
+        card.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+        card.alpha = 0.0
+        UIView.animate(withDuration: 0.45, delay: 0.0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.6, animations: {
+            card.transform = .identity
+            card.alpha = 1.0
+        })
+        UIView.animate(withDuration: 0.4, delay: 3.0, animations: {
+            overlay.alpha = 0.0
+        }, completion: { _ in
+            overlay.removeFromSuperview()
+            if self.codeOverlay === overlay {
+                self.codeOverlay = nil
+            }
+        })
+    }
+    
+    /// GRIT secret codes: `acid`, `void`, `filth`, `pulse`, `grit`.
+    public func flashCode(_ code: String) {
+        guard let window = self.window, self.codeOverlay == nil else {
+            return
+        }
+        if code == "STAR" {
+            self.showCelebration(title: "GRIT STARS", subtitle: "VISUAL REWARD // LOCAL ONLY", tint: 0xffd54f, image: nil, stars: nil)
+            return
+        }
+        if code == "GIFT" {
+            if let gift = GritVault.gifts.randomElement() {
+                GritVault.markGiftSent(gift)
+                self.showCelebration(title: gift.name, subtitle: "\(gift.symbol) \(gift.rarity) // VISUAL GIFT", tint: gift.tint, image: GritVault.loadImage(named: gift.imageName), stars: gift.stars)
+                return
+            }
+        }
+        if code.hasPrefix("GIFT:") {
+            let identifier = String(code.dropFirst("GIFT:".count))
+            if let gift = GritVault.gifts.first(where: { $0.id == identifier }) {
+                self.showCelebration(title: gift.name, subtitle: "\(gift.symbol) \(gift.rarity) // VISUAL GIFT", tint: gift.tint, image: GritVault.loadImage(named: gift.imageName), stars: gift.stars)
+                return
+            }
+        }
+        guard GritSettings.secretEnabled else {
+            return
+        }
+        
         let color: UIColor
         let title: String
         switch code {

@@ -17,6 +17,10 @@ public enum GritFeature: String {
     case archive
     case profileGlow
     case chatGrid
+    case stealth
+    case liquidGlass
+    case holoProfile
+    case giftFx
 }
 
 public enum GritSettings {
@@ -32,7 +36,7 @@ public enum GritSettings {
             return value
         }
         // Ghost mode is opt-in: never change delivery behaviour silently.
-        if feature == .ghost || feature == .vanish || feature == .archive {
+        if feature == .ghost || feature == .vanish || feature == .archive || feature == .stealth {
             return false
         }
         return true
@@ -63,6 +67,10 @@ public enum GritSettings {
     public static var archiveEnabled: Bool { isEnabled(.archive) }
     public static var profileGlowEnabled: Bool { isEnabled(.profileGlow) }
     public static var chatGridEnabled: Bool { isEnabled(.chatGrid) }
+    public static var stealthEnabled: Bool { isEnabled(.stealth) }
+    public static var liquidGlassEnabled: Bool { isEnabled(.liquidGlass) }
+    public static var holoProfileEnabled: Bool { isEnabled(.holoProfile) }
+    public static var giftFxEnabled: Bool { isEnabled(.giftFx) }
 
     private static let vanishSecondsKey = "GRIT.vanishSeconds"
 

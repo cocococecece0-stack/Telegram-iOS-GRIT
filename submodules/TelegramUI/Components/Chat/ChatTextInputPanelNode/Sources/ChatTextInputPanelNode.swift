@@ -4311,7 +4311,9 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 "filth": "FILTH",
                 "pulse": "PULSE",
                 "archive": "ARCHIVE",
-                "ghost": "GRIT"
+                "ghost": "GRIT",
+                "star": "STAR",
+                "gift": "GIFT"
             ]
             if let effect = codeEffects[typed] {
                 self.gritCodeArmed = false

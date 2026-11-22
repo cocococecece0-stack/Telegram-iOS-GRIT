@@ -145,6 +145,26 @@ Telegram — он нужен только чтобы проект скомпил
 получите свой на <https://my.telegram.org/apps> и замените `api_id` / `api_hash`.
 Не распространяйте сборку под именем Telegram и с официальным логотипом — это неофициальный клиент.
 
+## GRIT v5 — GRIT HUB / PRITZRAK / VISUAL SYSTEM
+
+Ветка `grit-v5`, билд `36600`. Всё новое — локальный визуальный слой; серверные
+покупки, звёзды и подарки не эмулируются и не списываются.
+
+- **GRIT HUB** — отдельный экран из Settings → GRIT HUB. Все переключатели,
+  подарки, звёзды, идентичность и коды собраны в одном месте.
+- **REŽIM PRITZRAK** — `GRIT STEALTH` глушит `account.updateStatus(offline:false)`
+  в единственном chokepoint (`ManagedAccountPresence.updatePresence`), не трогая
+  qts-подтверждения. Кнопка «GO FULLY OFFLINE» дополнительно ставит серверную
+  настройку Last Seen → Nobody через `engine.privacy`.
+- **GIFT STUDIO** — выбор фото из галереи, имя/редкость/цена, локальное
+  сохранение в `Documents/GRITGifts`, анимация «star rain» при дарении.
+- **GRIT IDENTITY** — локальный NFT-пасс, уровни, XP, звёзды, серия дней.
+- **HOLO PROFILE** — анимированный голографический баннер, кольцо аватара,
+  бейджи уровня/серии/звёзд; в чатах — анимированная аура под сообщениями.
+- **LIQUID GLASS** — нативный `UIGlassEffect` на карточках HUB при iOS 26+,
+  тёмный blur fallback на старых версиях.
+- Новые коды в чате: `star`, `gift`, `ghost`, `archive`.
+
 ## Источники
 
 - [TelegramMessenger/Telegram-iOS](https://github.com/TelegramMessenger/Telegram-iOS) — апстрим.

@@ -262,39 +262,22 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         })
     }
 
+    // GRIT v5: everything lives in one dedicated screen now.
     let gritProgress = GritProgress.registerOpen()
-    items[.grit]!.append(PeerInfoScreenDisclosureItem(id: 0, label: .text("DAY \(gritProgress.streak) · \(gritProgress.codes) CODES"), text: "GRIT // ACID / VOID", icon: PresentationResourcesSettings.appearance, action: {
-        interaction.openSettings(.gritThemes)
+    items[.grit]!.append(PeerInfoScreenDisclosureItem(id: 0, label: .text("DAY \(gritProgress.streak) · \(gritProgress.codes) CODES"), text: "GRIT HUB", icon: PresentationResourcesSettings.appearance, action: {
+        guard let controller = interaction.getController() else {
+            return
+        }
+        let hub = GritHubController(context: context)
+        let navigationController = UINavigationController(rootViewController: hub)
+        navigationController.modalPresentationStyle = .fullScreen
+        navigationController.navigationBar.barStyle = .black
+        navigationController.navigationBar.tintColor = UIColor(rgb: 0x9eff00)
+        navigationController.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        controller.present(navigationController, animated: true, completion: nil)
     }))
-    items[.grit]!.append(gritSwitch(id: 1, text: "GRIT CRT", feature: .crt, icon: PresentationResourcesSettings.appearance))
-    items[.grit]!.append(gritSwitch(id: 2, text: "GRIT PULSE", feature: .pulse, icon: PresentationResourcesSettings.appearance))
-    items[.grit]!.append(gritSwitch(id: 3, text: "GRIT SOUND", feature: .sound, icon: PresentationResourcesSettings.notifications))
-    items[.grit]!.append(PeerInfoScreenSwitchItem(id: 4, text: "GRIT GLITCH / THUMP", value: GritSettings.glitchEnabled, icon: PresentationResourcesSettings.dataAndStorage, toggled: { value in
-        GritSettings.setEnabled(value, for: .glitch)
-        GritSettings.setEnabled(value, for: .thump)
-        interaction.requestLayout(false)
-    }))
-    items[.grit]!.append(gritSwitch(id: 5, text: "GRIT SECRET CODE", feature: .secret, icon: PresentationResourcesSettings.security))
-    items[.grit]!.append(gritSwitch(id: 6, text: "GRIT SHIELD", feature: .antiScreenshot, icon: PresentationResourcesSettings.security))
-    items[.grit]!.append(gritSwitch(id: 7, text: "GRIT STREAK", feature: .streak, icon: PresentationResourcesSettings.appearance))
-    items[.grit]!.append(PeerInfoScreenActionItem(id: 8, text: "GRIT CODES · grit / acid / void / filth / pulse", color: .accent, icon: nil, action: {
-        NotificationCenter.default.post(name: GritSettings.codeFxNotification, object: "ACID")
-    }))
-    items[.grit]!.append(gritSwitch(id: 9, text: "GRIT GHOST · no typing / no receipts", feature: .ghost, icon: PresentationResourcesSettings.security))
-    items[.grit]!.append(gritSwitch(id: 10, text: "GRIT VANISH · self-destruct sends", feature: .vanish, icon: PresentationResourcesSettings.security))
-    items[.grit]!.append(PeerInfoScreenActionItem(id: 11, text: "VANISH TIMER · \(GritSettings.vanishSeconds)s", color: .accent, icon: nil, action: {
-        let steps = [10, 30, 60, 120]
-        let current = GritSettings.vanishSeconds
-        let next = steps.first(where: { $0 > current }) ?? steps[0]
-        GritSettings.vanishSeconds = next
-        interaction.requestLayout(false)
-    }))
-    items[.grit]!.append(gritSwitch(id: 12, text: "GRIT ARCHIVE · keep deleted text", feature: .archive, icon: PresentationResourcesSettings.dataAndStorage))
-    items[.grit]!.append(gritSwitch(id: 13, text: "GRIT PROFILE GLOW", feature: .profileGlow, icon: PresentationResourcesSettings.appearance))
-    items[.grit]!.append(gritSwitch(id: 14, text: "GRIT CHAT GRID", feature: .chatGrid, icon: PresentationResourcesSettings.appearance))
-    items[.grit]!.append(PeerInfoScreenActionItem(id: 15, text: "VIEW GRIT ARCHIVE · \(GritArchive.entries.count) saved", color: .accent, icon: nil, action: {
-        NotificationCenter.default.post(name: GritSettings.codeFxNotification, object: "ARCHIVE")
-    }))
+    items[.grit]!.append(gritSwitch(id: 1, text: "GRIT GHOST · appear offline", feature: .ghost, icon: PresentationResourcesSettings.security))
+    items[.grit]!.append(gritSwitch(id: 2, text: "GRIT STEALTH · suppress presence", feature: .stealth, icon: PresentationResourcesSettings.security))
 
     let notificationsWarning: Bool
     if let settings = data.globalSettings {
