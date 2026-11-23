@@ -354,7 +354,7 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         ]
         holoGradient.startPoint = CGPoint(x: 0.0, y: 0.0)
         holoGradient.endPoint = CGPoint(x: 1.0, y: 1.0)
-        holoGradient.add(self.makeGritHoloAnimation(), forKey: "gritHolo")
+        holoGradient.add(PeerInfoHeaderNode.makeGritHoloAnimation(), forKey: "gritHolo")
         self.gritHoloGradient = holoGradient
         self.gritHoloView.layer.insertSublayer(holoGradient, at: 0)
         
@@ -559,7 +559,7 @@ final class PeerInfoHeaderNode: ASDisplayNode {
         }
     }
     
-    private func makeGritHoloAnimation() -> CABasicAnimation {
+    private static func makeGritHoloAnimation() -> CABasicAnimation {
         let animation = CABasicAnimation(keyPath: "colors")
         animation.toValue = [
             UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.42).cgColor,
@@ -595,7 +595,7 @@ final class PeerInfoHeaderNode: ASDisplayNode {
             UIColor(rgb: GritDesign.mode.background, alpha: 0.9).cgColor
         ]
         gradient.removeAnimation(forKey: "gritHolo")
-        gradient.add(self.makeGritHoloAnimation(), forKey: "gritHolo")
+        gradient.add(PeerInfoHeaderNode.makeGritHoloAnimation(), forKey: "gritHolo")
     }
 
     deinit {

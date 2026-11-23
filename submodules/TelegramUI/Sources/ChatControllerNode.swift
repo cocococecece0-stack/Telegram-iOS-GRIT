@@ -565,7 +565,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         ]
         auraGradient.startPoint = CGPoint(x: 0.0, y: 0.0)
         auraGradient.endPoint = CGPoint(x: 1.0, y: 1.0)
-        auraGradient.add(self.makeGritAuraAnimation(), forKey: "gritAura")
+        auraGradient.add(ChatControllerNode.makeGritAuraAnimation(), forKey: "gritAura")
         self.gritAuraGradient = auraGradient
         self.gritAuraNode.layer.insertSublayer(auraGradient, at: 0)
         
@@ -1184,7 +1184,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
         })
     }
     
-    private func makeGritAuraAnimation() -> CABasicAnimation {
+    private static func makeGritAuraAnimation() -> CABasicAnimation {
         let animation = CABasicAnimation(keyPath: "colors")
         animation.toValue = [
             UIColor(rgb: GritDesign.mode.accentAlt, alpha: 0.2).cgColor,
@@ -1211,7 +1211,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
             UIColor.clear.cgColor
         ]
         gradient.removeAnimation(forKey: "gritAura")
-        gradient.add(self.makeGritAuraAnimation(), forKey: "gritAura")
+        gradient.add(ChatControllerNode.makeGritAuraAnimation(), forKey: "gritAura")
     }
 
     deinit {
